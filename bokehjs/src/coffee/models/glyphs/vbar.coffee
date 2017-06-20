@@ -52,6 +52,8 @@ export class VBarView extends GlyphView
     console.log(@)
     console.log("vbar @model.attributes.name", @model.attributes.name)
     console.log("vbar @renderer.model.attributes.name", @renderer.model.attributes.name)
+    console.log("vbar top", @renderer.model.data_source.attributes.data.top)
+    console.log("vbar x", @renderer.model.data_source.attributes.data.x)
     for i in indices
       if isNaN(sleft[i]+stop[i]+sright[i]+sbottom[i])
         continue
