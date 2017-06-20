@@ -48,6 +48,10 @@ export class VBarView extends GlyphView
     return new RBush(points)
 
   _render: (ctx, indices, {sleft, sright, stop, sbottom}) ->
+    console.log("Render vbar")
+    console.log(@)
+    console.log("vbar @model.attributes.name", @model.attributes.name)
+    console.log("vbar @renderer.model.attributes.name", @renderer.model.attributes.name)
     for i in indices
       if isNaN(sleft[i]+stop[i]+sright[i]+sbottom[i])
         continue
@@ -55,6 +59,7 @@ export class VBarView extends GlyphView
       if @visuals.fill.doit
         @visuals.fill.set_vectorize(ctx, i)
         ctx.fillRect(sleft[i], stop[i], sright[i]-sleft[i], sbottom[i]-stop[i])
+        console.log("vbar coords", sleft[i], stop[i], sright[i]-sleft[i], sbottom[i]-stop[i])
 
       if @visuals.line.doit
         ctx.beginPath()
