@@ -120,6 +120,7 @@
     "jquery-mousewheel": "^3.1.12",
     "jquery-ui": "~1.10.5",
     "kiwi": "https://github.com/bokeh/kiwi.git#6941045",
+    "lodash": "^4.17.4",
     "numbro": "https://github.com/bokeh/numbro.git#e1b6c52",
     "proj4": "<2.4",
     "rbush": "^2.0.1",

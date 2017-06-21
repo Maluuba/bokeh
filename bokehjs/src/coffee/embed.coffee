@@ -3,10 +3,16 @@ import {pull_session} from "./client"
 import {logger, set_log_level} from "./core/logging"
 import {Document, RootAddedEvent, RootRemovedEvent, TitleChangedEvent} from "./document"
 import {div, link, style, replaceWith} from "./core/dom"
+import * as _ from "lodash"
+
+console.log("lodash", _.min([1,2,3]))
 
 # Matches Bokeh CSS class selector. Setting all Bokeh parent element class names
 # with this var prevents user configurations where css styling is unset.
 export BOKEH_ROOT = "bk-root"
+
+# Yup I know global vars are bad practice; rendering is single threaded right now so will worry about this later
+export AUGMENTED_DATA = null;
 
 _handle_notebook_comms = (msg) ->
   logger.debug("handling notebook comms")
@@ -162,6 +168,9 @@ fill_render_item_from_script_tag = (script, item) ->
 # absolute_url as well if non-relative links are needed for resources. This function
 # should probably be split in to two pieces to reflect the different usage patterns
 export embed_items = (docs_json, render_items, app_path, absolute_url) ->
+
+  AUGMENTED_DATA = _.cloneDeep(docs_json)
+
   protocol = 'ws:'
   if (window.location.protocol == 'https:')
     protocol = 'wss:'
@@ -221,7 +230,8 @@ export embed_items = (docs_json, render_items, app_path, absolute_url) ->
          promise = add_document_from_session(elem, websocket_url, item.sessionid, use_for_title)
       else
         throw new Error("Error rendering Bokeh document to element #{element_id}: no document ID or session ID specified")
-
+    console.log("AUG")
+    console.log(AUGMENTED_DATA)
     if promise != null
       promise.then(
         (value) ->
