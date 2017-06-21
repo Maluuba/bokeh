@@ -170,7 +170,7 @@ fill_render_item_from_script_tag = (script, item) ->
 export embed_items = (docs_json, render_items, app_path, absolute_url) ->
 
   AUGMENTED_DATA = _.cloneDeep(docs_json)
-
+  window.localStorage.clear()
   protocol = 'ws:'
   if (window.location.protocol == 'https:')
     protocol = 'wss:'
