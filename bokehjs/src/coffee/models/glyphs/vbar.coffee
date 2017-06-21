@@ -3,7 +3,6 @@ import {Glyph, GlyphView} from "./glyph"
 import {CategoricalScale} from "../scales/categorical_scale"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
-import {AUGMENTED_DATA} from "../../embed"
 
 export class VBarView extends GlyphView
 
@@ -53,13 +52,12 @@ export class VBarView extends GlyphView
     console.log(@)
 
     data = { name: @renderer.model.attributes.name, top: @renderer.model.data_source.attributes.data.top, x: @renderer.model.data_source.attributes.data.x  }
-
+    window.localStorage.setItem(@id, JSON.stringify(data))
+    
     console.log("vbar @model.attributes.name", @model.attributes.name)
     console.log("vbar @renderer.model.attributes.name", @renderer.model.attributes.name)
     console.log("vbar top", @renderer.model.data_source.attributes.data.top)
     console.log("vbar x", @renderer.model.data_source.attributes.data.x)
-    AUGMENTED_DATA['thing'] = @renderer.model.attributes.name
-    window.localStorage.setItem(@id, JSON.stringify(data))
 
     for i in indices
       if isNaN(sleft[i]+stop[i]+sright[i]+sbottom[i])
