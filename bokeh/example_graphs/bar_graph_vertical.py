@@ -39,6 +39,10 @@ def export_png_and_data(obj, filename, html_path, driver=None):
     localstorage = web_driver.execute_script(get_localstorage_script)
     print "localstorage", localstorage
 
+    get_localstorage_keys_script = "return Object.keys(window.localStorage)"
+    localstorage_keys = web_driver.execute_script(get_localstorage_keys_script)
+    print "localstorage keys", localstorage_keys
+
     if driver is None: # only quit webdriver if not passed in as arg
         web_driver.quit()
 

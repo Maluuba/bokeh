@@ -51,28 +51,38 @@ export class VBarView extends GlyphView
     console.log("Render vbar")
     console.log(@)
 
-    data = { name: @renderer.model.attributes.name, top: @renderer.model.data_source.attributes.data.top, x: @renderer.model.data_source.attributes.data.x  }
-    window.localStorage.setItem(@id, JSON.stringify(data))
-    
-    console.log("vbar @model.attributes.name", @model.attributes.name)
-    console.log("vbar @renderer.model.attributes.name", @renderer.model.attributes.name)
-    console.log("vbar top", @renderer.model.data_source.attributes.data.top)
-    console.log("vbar x", @renderer.model.data_source.attributes.data.x)
+    name = @renderer.model.attributes.name
+    data =  
+      name: name
+      x: @renderer.model.data_source.attributes.data.x
+      y: @renderer.model.data_source.attributes.data.top
+      model_id: @model.id
+      renderer_id: @renderer.model.id
+      bars: []
 
     for i in indices
       if isNaN(sleft[i]+stop[i]+sright[i]+sbottom[i])
         continue
+      
+      datum = {}
 
       if @visuals.fill.doit
         @visuals.fill.set_vectorize(ctx, i)
         ctx.fillRect(sleft[i], stop[i], sright[i]-sleft[i], sbottom[i]-stop[i])
-        console.log("vbar coords", sleft[i], stop[i], sright[i]-sleft[i], sbottom[i]-stop[i])
+        datum.x = sleft[i]
+        datum.y = stop[i]
+        datum.w = sright[i]-sleft[i]
+        datum.h = sbottom[i]-stop[i]
+        data.bars.push(datum)
 
       if @visuals.line.doit
         ctx.beginPath()
         ctx.rect(sleft[i], stop[i], sright[i]-sleft[i], sbottom[i]-stop[i])
         @visuals.line.set_vectorize(ctx, i)
         ctx.stroke()
+    
+    console.log("all vbar data", data)
+    window.localStorage.setItem(name, JSON.stringify(data))
 
   _hit_point: (geometry) ->
     [vx, vy] = [geometry.vx, geometry.vy]
