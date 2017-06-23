@@ -5,17 +5,28 @@ import {RendererView} from "../renderers/renderer"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import {isString, isArray} from "core/util/types"
+import {getLabelBbox} from "core/util/bbox_util"
 
 export class AxisView extends RendererView
   initialize: (options) ->
     super(options)
     @_x_range_name = @model.x_range_name
     @_y_range_name = @model.y_range_name
+    console.log("AxisView constructor")
+    console.log(@)
+    @data = 
+      name: @model.attributes.name
+      model_id: @model.id
+      model_type: "axis"
+      rule: null
+      minor_ticks: []
+      major_ticks: []
+      major_labels: []
+      label: null
 
   render: () ->
     if @model.visible == false
       return
-
     ctx = @plot_view.canvas_view.ctx
     ctx.save()
     @_draw_rule(ctx)
@@ -24,6 +35,8 @@ export class AxisView extends RendererView
     @_draw_major_labels(ctx)
     @_draw_axis_label(ctx)
     ctx.restore()
+    console.log("all axis data", @data)
+    window.localStorage.setItem(@data.name, JSON.stringify(@data))
 
   connect_signals: () ->
     super()
@@ -133,6 +146,9 @@ export class AxisView extends RendererView
     if isNaN(x) or isNaN(y)
       return
 
+    console.log("label bbox", getLabelBbox(label, ctx, x, y))
+    console.log("label bbox w/angle", getLabelBbox(label, ctx, x, y, 90))
+
     if angle
       ctx.translate(x, y)
       ctx.rotate(angle)
@@ -141,6 +157,13 @@ export class AxisView extends RendererView
       ctx.translate(-x, -y)
     else
       ctx.fillText(label, x, y)
+      metrics = ctx.measureText(label)
+      @data.label =
+        x: x - (metrics.width / 2) # since text is centre aligned by default
+        y: y
+        w: metrics.width
+        h: metrics.ascent
+        label: label
 
   _tick_extent: () ->
     return @model.major_tick_out

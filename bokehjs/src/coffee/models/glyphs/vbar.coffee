@@ -56,7 +56,9 @@ export class VBarView extends GlyphView
       name: name
       x: @renderer.model.data_source.attributes.data.x
       y: @renderer.model.data_source.attributes.data.top
+      width: @model.attributes.width.value
       model_id: @model.id
+      model_type: "vbar"
       renderer_id: @renderer.model.id
       bars: []
 
