@@ -699,15 +699,16 @@ def export_png_and_data(obj, filename, html_path, driver=None):
     bounding_rect_script = "return document.getElementsByClassName('bk-root')[0].children[0].getBoundingClientRect()"
     b_rect = web_driver.execute_script(bounding_rect_script)
 
-    # One-liner to get all the local storage data.
-    # Multiline things don't seem to work with web_driver.execute
+    # Get all the local storage data. Note ES5 only (no 'let')
     get_localstorage_script = """
-        return Object.keys(window.localStorage).reduce(function(newObj, key) {
-            newObj[key] = JSON.parse(window.localStorage.getItem(key));
-            return newObj;
-        }, {});
+        var data = {};
+        var keys = Object.keys(window.localStorage);
+        for (var i = 0; i < keys.length; i++ ){
+            data[keys[i]] = JSON.parse(window.localStorage.getItem(keys[i]));
+        }
+        return data;
         """
-
+    
     localstorage_dict = web_driver.execute_script(get_localstorage_script)
 
     if driver is None: # only quit webdriver if not passed in as arg
