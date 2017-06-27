@@ -55,10 +55,36 @@ export class AxisView extends RendererView
     [xoff, yoff]  = @model.offsets
     @visuals.axis_line.set_value(ctx)
     ctx.beginPath()
-    ctx.moveTo(Math.round(sx[0]+nx*xoff), Math.round(sy[0]+ny*yoff))
+    origX = Math.round(sx[0]+nx*xoff)
+    origY = Math.round(sy[0]+ny*yoff)
+    ctx.moveTo(origX, origY)
+    bbox = {}
+    bboxOff = 2
+
     for i in [1...sx.length]
+      ruleX = Math.round(sx[i]+nx*xoff)
+      ruleY = Math.round(sy[i]+ny*yoff)
+
+      if i == 1
+        if ruleX == origX
+          bbox.x = ruleX - bboxOff
+          bbox.w = 2 * bboxOff
+        else
+          bbox.y = ruleY - bboxOff
+          bbox.h = 2 * bboxOff
+
+      if i == (sx.length - 1)
+        if _.isNil(bbox.h)
+          bbox.y = _.min([origY, ruleY])
+          bbox.h = _.max([origY, ruleY]) - bbox.y
+        else
+          bbox.x = _.min([origX, ruleX])
+          bbox.w = _.max([origX, ruleX]) - bbox.x
+      
       ctx.lineTo(Math.round(sx[i]+nx*xoff), Math.round(sy[i]+ny*yoff))
     ctx.stroke()
+
+    @data.rule = { bbox: bbox }
 
   _draw_major_ticks: (ctx) ->
     if not @visuals.major_tick_line.doit
