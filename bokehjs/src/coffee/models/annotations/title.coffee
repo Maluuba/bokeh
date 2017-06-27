@@ -2,6 +2,7 @@ import {TextAnnotation, TextAnnotationView} from "./text_annotation"
 import {hide} from "core/dom"
 import * as p from "core/properties"
 import * as Visuals from "core/visuals"
+import {getLabelBbox} from "core/util/bbox_util"
 
 export class TitleView extends TextAnnotationView
 
@@ -16,6 +17,12 @@ export class TitleView extends TextAnnotationView
     @model.text_baseline = ctx.textBaseline
     @model.text_align = @model.align
     ctx.restore()
+
+    @data = 
+      name: @model.attributes.name
+      model_id: @model.id
+      model_type: "text_annotation"
+      text: @model.text
 
   _get_computed_location: () ->
     [width, height] = @_calculate_text_dimensions(@plot_view.canvas_view.ctx, @text)
@@ -64,6 +71,10 @@ export class TitleView extends TextAnnotationView
       @_canvas_text(ctx, @model.text, sx, sy, angle)
     else
       @_css_text(ctx, @model.text, sx, sy, angle)
+    
+    @data.bbox = getLabelBbox(@model.text, ctx, sx, sy, angle)
+    window.localStorage.setItem(@data.name, JSON.stringify(@data))
+    console.log("render title", @)
 
   _get_size: () ->
     text = @model.text
