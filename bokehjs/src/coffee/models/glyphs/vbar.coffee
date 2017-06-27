@@ -54,13 +54,13 @@ export class VBarView extends GlyphView
     name = @renderer.model.attributes.name
     data =  
       name: name
-      x: @renderer.model.data_source.attributes.data.x
-      y: @renderer.model.data_source.attributes.data.top
-      width: @model.attributes.width.value
       model_id: @model.id
       model_type: "vbar"
       renderer_id: @renderer.model.id
-      bars: []
+      x: @renderer.model.data_source.attributes.data.x
+      y: @renderer.model.data_source.attributes.data.top
+      width: @model.attributes.width.value
+      bbox: []
 
     for i in indices
       if isNaN(sleft[i]+stop[i]+sright[i]+sbottom[i])
@@ -75,7 +75,7 @@ export class VBarView extends GlyphView
         datum.y = stop[i]
         datum.w = sright[i]-sleft[i]
         datum.h = sbottom[i]-stop[i]
-        data.bars.push(datum)
+        data.bbox.push(datum)
 
       if @visuals.line.doit
         ctx.beginPath()

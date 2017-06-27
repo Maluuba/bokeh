@@ -28,6 +28,7 @@
     "@types/gulp-sourcemaps": "^0.0.30",
     "@types/gulp-task-listing": "^0.0.30",
     "@types/gulp-util": "^3.0.31",
+    "@types/lodash": "^4.14.66",
     "@types/mocha": "^2.2.41",
     "@types/node": "^7.0.18",
     "@types/resolve": "^0.0.4",

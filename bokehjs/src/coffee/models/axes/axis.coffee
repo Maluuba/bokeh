@@ -133,7 +133,7 @@ export class AxisView extends RendererView
     [xoff, yoff]  = @model.offsets
     side = @model.panel_side
     orient = 'parallel'
-    angle = @model.panel.get_label_angle_heuristic(orient)
+    angle = @model.panel.get_label_angle_heuristic(orient) # THIS IS IN RADIANS
     standoff = (@_tick_extent() + @_tick_label_extent() + @model.axis_label_standoff)
     sx = (sx[0] + sx[sx.length-1])/2
     sy = (sy[0] + sy[sy.length-1])/2
@@ -146,24 +146,20 @@ export class AxisView extends RendererView
     if isNaN(x) or isNaN(y)
       return
 
-    console.log("label bbox", getLabelBbox(label, ctx, x, y))
-    console.log("label bbox w/angle", getLabelBbox(label, ctx, x, y, 90))
+    bbox = null
 
-    if angle
+    if angle && angle != 0
       ctx.translate(x, y)
       ctx.rotate(angle)
       ctx.fillText(label, 0, 0)
       ctx.rotate(-angle)
       ctx.translate(-x, -y)
+      bbox = getLabelBbox(label, ctx, x, y, angle)
     else
       ctx.fillText(label, x, y)
-      metrics = ctx.measureText(label)
-      @data.label =
-        x: x - (metrics.width / 2) # since text is centre aligned by default
-        y: y
-        w: metrics.width
-        h: metrics.ascent
-        label: label
+      bbox = getLabelBbox(label, ctx, x, y)
+
+    @data.label = { text: label, bbox: bbox }
 
   _tick_extent: () ->
     return @model.major_tick_out
