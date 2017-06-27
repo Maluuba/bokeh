@@ -6,6 +6,7 @@ import {logger} from "core/logging"
 import * as p from "core/properties"
 import {isString, isArray} from "core/util/types"
 import {getLabelBbox} from "core/util/bbox_util"
+import * as _ from "lodash"
 
 export class AxisView extends RendererView
   initialize: (options) ->
@@ -68,6 +69,12 @@ export class AxisView extends RendererView
     [nx, ny] = @model.normals
     [xoff, yoff]  = @model.offsets
 
+    values = null
+    if _.uniq(x).length <= 1
+      values = y
+    else
+      values = x
+
     tin = @model.major_tick_in
     tout = @model.major_tick_out
     @visuals.major_tick_line.set_value(ctx)
@@ -76,6 +83,17 @@ export class AxisView extends RendererView
       ctx.moveTo(Math.round(sx[i]+nx*tout+nx*xoff), Math.round(sy[i]+ny*tout+ny*yoff))
       ctx.lineTo(Math.round(sx[i]-nx*tin+nx*xoff), Math.round(sy[i]-ny*tin+ny*yoff))
       ctx.stroke()
+      tickX = Math.round(sx[i]+nx*tout+nx*xoff)
+      tickY = Math.round(sy[i]+ny*tout+ny*yoff)
+      tickW = Math.abs(Math.round(sx[i]-nx*tin+nx*xoff) - tickX)
+      tickH = Math.abs(Math.round(sy[i]-ny*tin+ny*yoff) - tickY)
+      if tickW != 0
+        tickY -= tickW / 2
+        tickH = tickW
+      else
+        tickX -= tickH / 2
+        tickW = tickH
+      @data.major_ticks.push({ value: values[i], bbox: { x: tickX, y: tickY, w: tickW, h: tickH }})
 
   _draw_minor_ticks: (ctx) ->
     if not @visuals.minor_tick_line.doit
@@ -85,6 +103,13 @@ export class AxisView extends RendererView
     [sx, sy] = @plot_view.map_to_screen(x, y, @_x_range_name, @_y_range_name)
     [nx, ny] = @model.normals
     [xoff, yoff]  = @model.offsets
+
+    values = null
+    if _.uniq(x).length <= 1
+      values = y
+    else
+      values = x
+
     tin = @model.minor_tick_in
     tout = @model.minor_tick_out
     @visuals.minor_tick_line.set_value(ctx)
@@ -93,6 +118,17 @@ export class AxisView extends RendererView
       ctx.moveTo(Math.round(sx[i]+nx*tout+nx*xoff), Math.round(sy[i]+ny*tout+ny*yoff))
       ctx.lineTo(Math.round(sx[i]-nx*tin+nx*xoff), Math.round(sy[i]-ny*tin+ny*yoff))
       ctx.stroke()
+      tickX = Math.round(sx[i]+nx*tout+nx*xoff)
+      tickY = Math.round(sy[i]+ny*tout+ny*yoff)
+      tickW = Math.abs(Math.round(sx[i]-nx*tin+nx*xoff) - tickX)
+      tickH = Math.abs(Math.round(sy[i]-ny*tin+ny*yoff) - tickY)
+      if tickW != 0
+        tickY -= tickW / 2
+        tickH = tickW
+      else
+        tickX -= tickH / 2
+        tickW = tickH
+      @data.minor_ticks.push({ value: values[i], bbox: { x: tickX, y: tickY, w: tickW, h: tickH }})
 
   _draw_major_labels: (ctx) ->
     coords = @model.tick_coords
@@ -114,14 +150,21 @@ export class AxisView extends RendererView
     @visuals.major_label_text.set_value(ctx)
     @model.panel.apply_label_text_heuristics(ctx, orient)
     for i in [0...sx.length]
+      bbox = null
+      labelX = Math.round(sx[i]+nx*standoff+nx*xoff)
+      labelY = Math.round(sy[i]+ny*standoff+ny*yoff)
+
       if angle
         ctx.translate(sx[i]+nx*standoff+nx*xoff, sy[i]+ny*standoff+ny*yoff)
         ctx.rotate(angle)
         ctx.fillText(labels[i], 0, 0)
         ctx.rotate(-angle)
         ctx.translate(-sx[i]-nx*standoff+nx*xoff, -sy[i]-ny*standoff+ny*yoff)
+        bbox = getLabelBbox(labels[i], ctx, labelX, labelY, angle)
       else
-        ctx.fillText(labels[i], Math.round(sx[i]+nx*standoff+nx*xoff), Math.round(sy[i]+ny*standoff+ny*yoff))
+        ctx.fillText(labels[i], labelX, labelY)
+        bbox = getLabelBbox(labels[i], ctx, sx[i]+nx*standoff+nx*xoff, sy[i]+ny*standoff+ny*yoff)
+      @data.major_labels.push({ text: labels[i], bbox: bbox})
 
   _draw_axis_label: (ctx) ->
     label = @model.axis_label

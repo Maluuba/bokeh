@@ -22,10 +22,16 @@ if __name__ == "__main__":
     p.yaxis.name = "the_yaxis"
     p.yaxis.axis_label = "yaxis_label"
     p.title.name = "the_title"
+    if p.grid[0].dimension == 0:
+        p.grid[0].name = "the_x_gridlines"
+        p.grid[1].name = "the_y_gridlines"
+    else:
+        p.grid[0].name = "the_y_gridlines"
+        p.grid[1].name = "the_x_gridlines"
 
     # Export to HTML, PNG, and get bbox data
     data = export_png_and_data(p, "vbar.png", "vbar.html")
     print data
-    
+
     with open("vbar_data.json", "w") as f:
         json.dump(data, f)

@@ -710,6 +710,7 @@ def export_png_and_data(obj, filename, html_path, driver=None):
         """
     
     localstorage_dict = web_driver.execute_script(get_localstorage_script)
+    localstorage_dict['_figure_info'] = { 'w': b_rect['width'], 'h': b_rect['height'] }
 
     if driver is None: # only quit webdriver if not passed in as arg
         web_driver.quit()
