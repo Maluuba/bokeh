@@ -13,8 +13,6 @@ export class AxisView extends RendererView
     super(options)
     @_x_range_name = @model.x_range_name
     @_y_range_name = @model.y_range_name
-    console.log("AxisView constructor")
-    console.log(@)
     @data = 
       name: @model.attributes.name
       model_id: @model.id
@@ -36,7 +34,8 @@ export class AxisView extends RendererView
     @_draw_major_labels(ctx)
     @_draw_axis_label(ctx)
     ctx.restore()
-    console.log("all axis data", @data)
+    console.log("render axis")
+    console.log(@)
     window.localStorage.setItem(@data.name, JSON.stringify(@data))
 
   connect_signals: () ->

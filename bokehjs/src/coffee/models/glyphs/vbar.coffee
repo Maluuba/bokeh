@@ -48,11 +48,9 @@ export class VBarView extends GlyphView
     return new RBush(points)
 
   _render: (ctx, indices, {sleft, sright, stop, sbottom}) ->
-    console.log("Render vbar")
-    console.log(@)
-
+    
     name = @renderer.model.attributes.name
-    data =  
+    @data =  
       name: name
       model_id: @model.id
       model_type: "vbar"
@@ -60,7 +58,7 @@ export class VBarView extends GlyphView
       x: @renderer.model.data_source.attributes.data.x
       y: @renderer.model.data_source.attributes.data.top
       width: @model.attributes.width.value
-      bbox: []
+      bars: []
 
     for i in indices
       if isNaN(sleft[i]+stop[i]+sright[i]+sbottom[i])
@@ -71,11 +69,11 @@ export class VBarView extends GlyphView
       if @visuals.fill.doit
         @visuals.fill.set_vectorize(ctx, i)
         ctx.fillRect(sleft[i], stop[i], sright[i]-sleft[i], sbottom[i]-stop[i])
-        datum.x = sleft[i]
-        datum.y = stop[i]
-        datum.w = sright[i]-sleft[i]
-        datum.h = sbottom[i]-stop[i]
-        data.bbox.push(datum)
+        datum.x = Math.round(sleft[i])
+        datum.y = Math.round(stop[i])
+        datum.w = Math.round(sright[i]-sleft[i])
+        datum.h = Math.round(sbottom[i]-stop[i])
+        @data.bars.push({ bbox: datum })
 
       if @visuals.line.doit
         ctx.beginPath()
@@ -83,8 +81,9 @@ export class VBarView extends GlyphView
         @visuals.line.set_vectorize(ctx, i)
         ctx.stroke()
     
-    console.log("all vbar data", data)
-    window.localStorage.setItem(name, JSON.stringify(data))
+    console.log("render vbar")
+    console.log(@)
+    window.localStorage.setItem(name, JSON.stringify(@data))
 
   _hit_point: (geometry) ->
     [vx, vy] = [geometry.vx, geometry.vy]

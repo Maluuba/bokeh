@@ -8,17 +8,24 @@ export class GridView extends RendererView
     super(attrs, options)
     @_x_range_name = @model.x_range_name
     @_y_range_name = @model.y_range_name
+    @data =
+      name: @model.name
+      model_id: @model.id
+      model_type: "grid_view"
+      gridlines: null
 
   render: () ->
     if @model.visible == false
       return
-
     ctx = @plot_view.canvas_view.ctx
     ctx.save()
     @_draw_regions(ctx)
     @_draw_minor_grids(ctx)
     @_draw_grids(ctx)
     ctx.restore()
+    console.log("render GridView")
+    console.log(@)
+    window.localStorage.setItem(@data.name, JSON.stringify(@data))
 
   connect_signals: () ->
     super()
@@ -51,13 +58,46 @@ export class GridView extends RendererView
 
   _draw_grid_helper: (ctx, props, xs, ys) ->
     props.set_value(ctx)
+    bboxOffset = 2
+    gridlines = []
+
     for i in [0...xs.length]
       [sx, sy] = @plot_view.map_to_screen(xs[i], ys[i], @_x_range_name, @_y_range_name)
       ctx.beginPath()
       ctx.moveTo(Math.round(sx[0]), Math.round(sy[0]))
-      for i in [1...sx.length]
-        ctx.lineTo(Math.round(sx[i]), Math.round(sy[i]))
+      bbox = 
+        x: sx[0]
+        y: sy[0]
+        w: null
+        h: null
+
+      for j in [1...sx.length]
+        ctx.lineTo(Math.round(sx[j]), Math.round(sy[j]))
+        if j == (sx.length - 1)
+          endX = sx[j]
+          endY = sy[j]
+
+          if endX < bbox.x
+            bbox.x = endX
+          if endY < bbox.y 
+            bbox.y = endY
+
+          bbox.w = Math.round(endX - bbox.x)
+          bbox.h = Math.round(endY - bbox.y)
+          bbox.x = Math.round(bbox.x)
+          bbox.y = Math.round(bbox.y)
+
+          if bbox.w == 0
+            bbox.x -= bboxOffset
+            bbox.w = 2 * bboxOffset
+          else
+            bbox.y -= bboxOffset
+            bbox.h = 2 * bboxOffset
+
+      gridlines.push({ bbox: bbox, value: xs[i] })
       ctx.stroke()
+
+    @data.gridlines = gridlines
     return
 
 export class Grid extends GuideRenderer
