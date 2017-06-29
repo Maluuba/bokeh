@@ -1,13 +1,21 @@
 import {XYGlyph, XYGlyphView} from "./xy_glyph"
 import * as hittest from "core/hittest"
+import * as _ from "lodash"
 
 export class LineView extends XYGlyphView
 
   _render: (ctx, indices, {sx, sy}) ->
     drawing = false
     @visuals.line.set_value(ctx)
+    @data =
+      name: @renderer.model.name
+      model_id: @model.id 
+      segments: []
 
+    lastPoint = null
+    curPoint = null
     for i in indices
+      # Infinite not supported yet
       if !isFinite(sx[i]+sy[i]) and drawing
         ctx.stroke()
         ctx.beginPath()
@@ -16,13 +24,32 @@ export class LineView extends XYGlyphView
 
       if drawing
         ctx.lineTo(sx[i], sy[i])
+        curPoint =
+          x: Math.round(sx[i]), 
+          y: Math.round(sy[i])
+
+        bbox =
+          x: _.min([lastPoint.x, curPoint.x]),
+          y: _.min([lastPoint.y, curPoint.y]),
+          w: Math.abs(curPoint.x - lastPoint.x),
+          h: Math.abs(curPoint.y - lastPoint.y)
+        @data.segments.push({bbox: bbox, start: lastPoint, end: curPoint})
+        lastPoint = curPoint
+
       else
         ctx.beginPath()
         ctx.moveTo(sx[i], sy[i])
         drawing = true
+        lastPoint =
+          x: Math.round(sx[i]),
+          y: Math.round(sy[i])
 
     if drawing
       ctx.stroke()
+
+    console.log("render line")
+    console.log(@)
+    window.localStorage.setItem(@data.name, JSON.stringify(@data))
 
   _hit_point: (geometry) ->
     ### Check if the point geometry hits this line glyph and return an object
