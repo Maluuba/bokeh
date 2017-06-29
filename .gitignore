@@ -109,3 +109,7 @@ win-64
 /bokeh/LICENSE.txt
 /examples/refs
 .cache/
+
+bokeh/example_graphs/*.json
+bokeh/example_graphs/*.png
+bokeh/example_graphs/*.html
