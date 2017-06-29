@@ -3,7 +3,7 @@ import json
 
 from bokeh.io import export_png_and_data    # Custom function
 from bokeh.plotting import figure, output_file, save
-from bokeh.models import ColumnDataSource, DataRange1d, Plot, LinearAxis, Grid
+from bokeh.models import ColumnDataSource
 from bokeh.models.glyphs import Line
 
 if __name__ == "__main__":
@@ -33,7 +33,7 @@ if __name__ == "__main__":
         p.grid[1].name = "the_x_gridlines"
 
     # Export to HTML, PNG, and get bbox data
-    data = export_png_and_data(p, "line.png", "line2.html")
+    data = export_png_and_data(p, "line.png", "line.html")
     #print data
 
     with open("line.json", "w") as f:
