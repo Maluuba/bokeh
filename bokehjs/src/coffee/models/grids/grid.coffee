@@ -94,7 +94,7 @@ export class GridView extends RendererView
             bbox.y -= bboxOffset
             bbox.h = 2 * bboxOffset
 
-      gridlines.push({ bbox: bbox, value: xs[i] })
+      gridlines.push({ bbox: bbox, value: xs[i][0] })
       ctx.stroke()
 
     @data.gridlines = gridlines

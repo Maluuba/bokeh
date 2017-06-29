@@ -7,12 +7,14 @@ _one_x =  (ctx, r) ->
   ctx.lineTo( r, -r)
   ctx.moveTo(-r, -r)
   ctx.lineTo( r,  r)
+  return { x: -r, y: -r, w: 2*r, h: 2*r}
 
 _one_cross = (ctx, r) ->
   ctx.moveTo( 0,  r)
   ctx.lineTo( 0, -r)
   ctx.moveTo(-r,  0)
   ctx.lineTo( r,  0)
+  return { x: -r, y: -r, w: 2*r, h: 2*r}
 
 _one_diamond = (ctx, r) ->
   ctx.moveTo(0, r)
@@ -20,6 +22,7 @@ _one_diamond = (ctx, r) ->
   ctx.lineTo(0, -r)
   ctx.lineTo(-r/1.5, 0)
   ctx.closePath()
+  return { x: -r/1.5, y: -r, w: (2*r)/1.5, h: 2*r}
 
 _one_tri = (ctx, r) ->
   h = r * SQ3
@@ -30,18 +33,19 @@ _one_tri = (ctx, r) ->
   ctx.lineTo(r, a)
   ctx.lineTo(0, a-h)
   ctx.closePath()
+  return { x: -r, y: a-h, w: 2*r, h: a+h}
 
 asterisk = (ctx, i, sx, sy, r, line, fill) ->
   r2 = r*0.65
 
-  _one_cross(ctx, r)
+  bbox = _one_cross(ctx, r)
   _one_x(ctx, r2)
 
   if line.doit
     line.set_vectorize(ctx, i)
     ctx.stroke()
 
-  return
+  return bbox
 
 circle_cross = (ctx, i, sx, sy, r, line, fill)  ->
   ctx.arc(0, 0, r, 0, 2*Math.PI, false)
@@ -55,7 +59,7 @@ circle_cross = (ctx, i, sx, sy, r, line, fill)  ->
     _one_cross(ctx, r)
     ctx.stroke()
 
-  return
+  return {x: -r, y: -r, w: 2*r, h: 2*r}
 
 circle_x = (ctx, i, sx, sy, r, line, fill) ->
   ctx.arc(0, 0, r, 0, 2*Math.PI, false)
@@ -69,19 +73,19 @@ circle_x = (ctx, i, sx, sy, r, line, fill) ->
     _one_x(ctx, r)
     ctx.stroke()
 
-  return
+  return {x: -r, y: -r, w: 2*r, h: 2*r}
 
 cross = (ctx, i, sx, sy, r, line, fill) ->
-  _one_cross(ctx, r)
+  bbox = _one_cross(ctx, r)
 
   if line.doit
     line.set_vectorize(ctx, i)
     ctx.stroke()
 
-  return
+  return bbox
 
 diamond = (ctx, i, sx, sy, r, line, fill) ->
-  _one_diamond(ctx, r)
+  bbox = _one_diamond(ctx, r)
 
   if fill.doit
     fill.set_vectorize(ctx, i)
@@ -91,10 +95,10 @@ diamond = (ctx, i, sx, sy, r, line, fill) ->
     line.set_vectorize(ctx, i)
     ctx.stroke()
 
-  return
+  return bbox
 
 diamond_cross = (ctx, i, sx, sy, r, line, fill) ->
-  _one_diamond(ctx, r)
+  bbox = _one_diamond(ctx, r)
 
   if fill.doit
     fill.set_vectorize(ctx, i)
@@ -105,11 +109,11 @@ diamond_cross = (ctx, i, sx, sy, r, line, fill) ->
     _one_cross(ctx, r)
     ctx.stroke()
 
-  return
+  return bbox
 
 inverted_triangle = (ctx, i, sx, sy, r, line, fill) ->
   ctx.rotate(Math.PI)
-  _one_tri(ctx, r)
+  bbox = _one_tri(ctx, r)
   ctx.rotate(-Math.PI)
 
   if fill.doit
@@ -120,7 +124,7 @@ inverted_triangle = (ctx, i, sx, sy, r, line, fill) ->
     line.set_vectorize(ctx, i)
     ctx.stroke()
 
-  return
+  return bbox
 
 square = (ctx, i, sx, sy, r, line, fill) ->
   size = 2*r
@@ -134,7 +138,7 @@ square = (ctx, i, sx, sy, r, line, fill) ->
     line.set_vectorize(ctx, i)
     ctx.stroke()
 
-  return
+  return {x: -r, y: -r, w: size, h: size}
 
 square_cross = (ctx, i, sx, sy, r, line, fill) ->
   size = 2*r
@@ -149,7 +153,7 @@ square_cross = (ctx, i, sx, sy, r, line, fill) ->
     _one_cross(ctx, r)
     ctx.stroke()
 
-  return
+  return {x: -r, y: -r, w: size, h: size}
 
 square_x = (ctx, i, sx, sy, r, line, fill) ->
   size = 2*r
@@ -164,10 +168,10 @@ square_x = (ctx, i, sx, sy, r, line, fill) ->
     _one_x(ctx, r)
     ctx.stroke()
 
-  return
+  return {x: -r, y: -r, w: size, h: size}
 
 triangle = (ctx, i, sx, sy, r, line, fill) ->
-  _one_tri(ctx, r)
+  bbox = _one_tri(ctx, r)
 
   if fill.doit
     fill.set_vectorize(ctx, i)
@@ -177,16 +181,16 @@ triangle = (ctx, i, sx, sy, r, line, fill) ->
     line.set_vectorize(ctx, i)
     ctx.stroke()
 
-  return
+  return bbox
 
 x = (ctx, i, sx, sy, r, line, fill) ->
-  _one_x(ctx, r)
+  bbox = _one_x(ctx, r)
 
   if line.doit
     line.set_vectorize(ctx, i)
     ctx.stroke()
 
-  return
+  return bbox
 
 _mk_model = (type, f) ->
   class view extends MarkerView
