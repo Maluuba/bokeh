@@ -27,7 +27,7 @@ if __name__ == "__main__":
 
     p.wedge(x=0, y=0, radius=1, start_angle=starts, end_angle=ends, color=colors, name="the_pie")
 
-    labels = LabelSet(x='x', y='y', text='colors', level='glyph', source=pie_label_data, render_mode='canvas', text_color='black')
+    labels = LabelSet(x='x', y='y', text='colors', level='glyph', source=pie_label_data, render_mode='canvas', text_color='black', name="the_pie_labels")
     p.add_layout(labels)
 
     p.xaxis.visible = False
