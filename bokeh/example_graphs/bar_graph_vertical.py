@@ -18,7 +18,7 @@ if __name__ == "__main__":
     
     # Set identifiers for the figure elements
     p.xaxis.name = "the_xaxis"
-    p.xaxis.axis_label = "xaxis_labely"
+    p.xaxis.axis_label = "xaxis_label"
     p.yaxis.name = "the_yaxis"
     p.yaxis.axis_label = "yaxis_label"
     p.title.name = "the_title"

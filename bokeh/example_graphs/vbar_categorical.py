@@ -9,12 +9,13 @@ from bokeh.plotting import figure, save, show, output_file, curdoc
 
 if __name__ == "__main__":
 
-    output_file('hbar.html')
+    output_file('vbar_cat.html')
 
     # Set up the plot
-    p = figure(plot_width=400, plot_height=400, title="title_title", toolbar_location=None)
-    p.hbar(y=[1, 2, 3], height=0.5, left=0,
-       right=[1.2, 2.5, 3.7], color="firebrick", name="the_bars")
+    categories = ['cat_a','cat_b','cat_c']
+    p = figure(plot_width=400, plot_height=400, title="title_title", toolbar_location=None, x_range=categories)
+    p.vbar(x=categories, width=0.5, bottom=0,
+        top=[1.2, 2.5, 3.7], color="firebrick", name="the_bars")
     
     # Set identifiers for the figure elements
     p.xaxis.name = "the_xaxis"
@@ -30,8 +31,8 @@ if __name__ == "__main__":
         p.grid[1].name = "the_x_gridlines"
 
     # Export to HTML, PNG, and get bbox data
-    data = export_png_and_data(p, "hbar.png", "hbar.html")
+    data = export_png_and_data(p, "vbar_cat.png", "vbar_cat.html")
     print data
 
-    with open("hbar_data.json", "w") as f:
+    with open("vbar_cat_data.json", "w") as f:
         json.dump(data, f)

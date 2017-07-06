@@ -55,25 +55,25 @@ export class VBarView extends GlyphView
       model_id: @model.id
       model_type: "vbar"
       renderer_id: @renderer.model.id
-      x: @renderer.model.data_source.attributes.data.x
-      y: @renderer.model.data_source.attributes.data.top
       width: @model.attributes.width.value
       bars: []
 
     for i in indices
       if isNaN(sleft[i]+stop[i]+sright[i]+sbottom[i])
         continue
-      
-      datum = {}
 
       if @visuals.fill.doit
         @visuals.fill.set_vectorize(ctx, i)
         ctx.fillRect(sleft[i], stop[i], sright[i]-sleft[i], sbottom[i]-stop[i])
-        datum.x = Math.round(sleft[i])
-        datum.y = Math.round(stop[i])
-        datum.w = Math.round(sright[i]-sleft[i])
-        datum.h = Math.round(sbottom[i]-stop[i])
-        @data.bars.push({ bbox: datum })
+        bbox =
+          x: Math.round(sleft[i])
+          y: Math.round(stop[i])
+          w: Math.round(sright[i]-sleft[i])
+          h: Math.round(sbottom[i]-stop[i])
+
+        x_val = @renderer.model.data_source.attributes.data.x[i]
+        y_val = @renderer.model.data_source.attributes.data.top[i]
+        @data.bars.push({ bbox: bbox, x: x_val, y: y_val })
 
       if @visuals.line.doit
         ctx.beginPath()
