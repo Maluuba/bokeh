@@ -23,7 +23,7 @@ export class WedgeView extends XYGlyphView
     get_slice_bbox = (centre_x, centre_y, rad, start_theta, end_theta) ->
       start_theta *= -1
       end_theta *= -1
-      console.log("NEW SLICE, start", start_theta, "end ", end_theta)
+
       if end_theta - start_theta >= Math.PI
         return { x: centre_x - rad, y: centre_y - rad, w: 2*rad, h: 2*rad }
 
@@ -42,7 +42,9 @@ export class WedgeView extends XYGlyphView
       theta = -start_theta
       last_quadrant = null
 
-      # TODO: bug with the last slice case
+      # For quadrants, increases in CCW order. Concretely,
+      # TR = 0, TL = 1, BL = 2 , BR = 3
+
       if theta > - Math.PI / 2
         theta = - Math.PI / 2
         last_quadrant = 3
@@ -55,20 +57,21 @@ export class WedgeView extends XYGlyphView
       else
         theta = 0
         last_quadrant = 0
-      console.log("INIT theta", theta, "Last quad", last_quadrant)
+
       # if the theta > -end_theta condition isn't satsified, the arc is montonic
       # and the bounding box will be defined by the ray intersections of the arc
 
       while theta > -end_theta
-        console.log("theta", theta, "Last quad", last_quadrant)
         switch last_quadrant
           when 3 then origin_bounding_ys.push(-rad)
           when 2 then origin_bounding_xs.push(-rad)
           when 1 then origin_bounding_ys.push(rad)
           when 0 then origin_bounding_xs.push(rad)
-        console.log("origin_bounding_xs", origin_bounding_xs)
-        console.log("origin_bounding_ys", origin_bounding_ys)
-        last_quadrant = (last_quadrant + 1) % 4
+
+        if last_quadrant > 0
+          last_quadrant = (last_quadrant - 1) % 4
+        else
+          last_quadrant = 0
         theta -= Math.PI / 2
 
       bounding_xs = []
@@ -79,11 +82,6 @@ export class WedgeView extends XYGlyphView
       for i in [0...origin_bounding_ys.length]
         bounding_ys.push(origin_bounding_ys[i] + centre_y)
 
-      #console.log("x1", x1, "y1", y1, "x2", x2, "y2",   y2)
-      console.log("bounding_xs", bounding_xs)
-      console.log("bounding_ys", bounding_ys)
-      #bbox_x = Math.round(_.min([centre_x, x1, x2]))
-      #bbox_y = Math.round(_.min([centre_y, y1, y2]))
       bbox_x = Math.round(_.min(bounding_xs))
       bbox_y = Math.round(_.min(bounding_ys))
 
