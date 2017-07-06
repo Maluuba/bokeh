@@ -2,6 +2,7 @@ import {XYGlyph, XYGlyphView} from "./xy_glyph"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {angle_between} from "core/util/math"
+import * as _ from "lodash"
 
 export class WedgeView extends XYGlyphView
 
@@ -13,6 +14,81 @@ export class WedgeView extends XYGlyphView
 
   _render: (ctx, indices, {sx, sy, sradius, _start_angle, _end_angle}) ->
     direction = @model.properties.direction.value()
+    @data =
+      name: @renderer.model.name
+      model_id: @model.id
+      slices: []
+
+    # assumes 'direction' is always CCW 
+    get_slice_bbox = (centre_x, centre_y, rad, start_theta, end_theta) ->
+      start_theta *= -1
+      end_theta *= -1
+      console.log("NEW SLICE, start", start_theta, "end ", end_theta)
+      if end_theta - start_theta >= Math.PI
+        return { x: centre_x - rad, y: centre_y - rad, w: 2*rad, h: 2*rad }
+
+      # Need to flip implictly because of canvas vs cartesian plane Y direction
+      # Also rotate clockwise (i.e. -theta) instead
+      cart_x1 = rad*Math.cos(-start_theta)
+      cart_y1 = rad*Math.sin(-start_theta)
+
+      cart_x2 = rad*Math.cos(-end_theta)
+      cart_y2 = rad*Math.sin(-end_theta)
+
+      # Now need to correct as the arc passes across quadrants (in CW direction bc -ve angles)
+      origin_bounding_xs = [0, cart_x1, cart_x2]
+      origin_bounding_ys = [0, cart_y1, cart_y2]
+
+      theta = -start_theta
+      last_quadrant = null
+
+      # TODO: bug with the last slice case
+      if theta > - Math.PI / 2
+        theta = - Math.PI / 2
+        last_quadrant = 3
+      else if theta > - Math.PI
+        theta = - Math.PI
+        last_quadrant = 2
+      else if theta > - 3 * Math.PI / 2
+        theta = - 3 * Math.PI / 2
+        last_quadrant = 1
+      else
+        theta = 0
+        last_quadrant = 0
+      console.log("INIT theta", theta, "Last quad", last_quadrant)
+      # if the theta > -end_theta condition isn't satsified, the arc is montonic
+      # and the bounding box will be defined by the ray intersections of the arc
+
+      while theta > -end_theta
+        console.log("theta", theta, "Last quad", last_quadrant)
+        switch last_quadrant
+          when 3 then origin_bounding_ys.push(-rad)
+          when 2 then origin_bounding_xs.push(-rad)
+          when 1 then origin_bounding_ys.push(rad)
+          when 0 then origin_bounding_xs.push(rad)
+        console.log("origin_bounding_xs", origin_bounding_xs)
+        console.log("origin_bounding_ys", origin_bounding_ys)
+        last_quadrant = (last_quadrant + 1) % 4
+        theta -= Math.PI / 2
+
+      bounding_xs = []
+      for i in [0...origin_bounding_xs.length]
+        bounding_xs.push(origin_bounding_xs[i] + centre_x)
+
+      bounding_ys = []
+      for i in [0...origin_bounding_ys.length]
+        bounding_ys.push(origin_bounding_ys[i] + centre_y)
+
+      #console.log("x1", x1, "y1", y1, "x2", x2, "y2",   y2)
+      console.log("bounding_xs", bounding_xs)
+      console.log("bounding_ys", bounding_ys)
+      #bbox_x = Math.round(_.min([centre_x, x1, x2]))
+      #bbox_y = Math.round(_.min([centre_y, y1, y2]))
+      bbox_x = Math.round(_.min(bounding_xs))
+      bbox_y = Math.round(_.min(bounding_ys))
+
+      return { x: bbox_x, y: bbox_y, w: Math.round(_.max(bounding_xs)) - bbox_x, h: Math.round(_.max(bounding_ys)) - bbox_y }
+
     for i in indices
       if isNaN(sx[i]+sy[i]+sradius[i]+_start_angle[i]+_end_angle[i])
         continue
@@ -21,7 +97,7 @@ export class WedgeView extends XYGlyphView
       ctx.arc(sx[i], sy[i], sradius[i], _start_angle[i], _end_angle[i], direction)
       ctx.lineTo(sx[i], sy[i])
       ctx.closePath()
-
+      
       if @visuals.fill.doit
         @visuals.fill.set_vectorize(ctx, i)
         ctx.fill()
@@ -29,6 +105,13 @@ export class WedgeView extends XYGlyphView
       if @visuals.line.doit
         @visuals.line.set_vectorize(ctx, i)
         ctx.stroke()
+
+      span = -(_end_angle[i] - _start_angle[i])*180/Math.PI
+      @data.slices.push({ bbox: get_slice_bbox(sx[i], sy[i], sradius[i], _start_angle[i], _end_angle[i]), span: span })
+
+    console.log("render wedge")
+    console.log(@)
+    window.localStorage.setItem(@data.name, JSON.stringify(@data))
 
   _hit_point: (geometry) ->
     [vx, vy] = [geometry.vx, geometry.vy]
