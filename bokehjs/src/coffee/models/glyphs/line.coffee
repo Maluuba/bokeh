@@ -7,8 +7,13 @@ export class LineView extends XYGlyphView
   _render: (ctx, indices, {sx, sy}) ->
     drawing = false
     @visuals.line.set_value(ctx)
+
+    name = @model.name
+    if _.isNil(name)
+      name = @renderer.model.name
+
     @data =
-      name: @renderer.model.name
+      name: name
       model_id: @model.id 
       segments: []
 
