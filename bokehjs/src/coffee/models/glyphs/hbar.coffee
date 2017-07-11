@@ -51,8 +51,9 @@ export class HBarView extends GlyphView
     return new RBush(points)
 
   _render: (ctx, indices, {sleft, sright, stop, sbottom}) ->
-    @data =  
-      name: name
+  
+    @data =
+      name: @renderer.model.name
       model_id: @model.id
       model_type: "hbar"
       renderer_id: @renderer.model.id
@@ -84,7 +85,7 @@ export class HBarView extends GlyphView
     
     console.log("render hbar")
     console.log(@)
-    window.localStorage.setItem(name, JSON.stringify(@data))
+    window.localStorage.setItem(@data.name, JSON.stringify(@data))
 
   _hit_point: (geometry) ->
     [vx, vy] = [geometry.vx, geometry.vy]

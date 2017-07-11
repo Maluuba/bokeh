@@ -49,9 +49,8 @@ export class VBarView extends GlyphView
 
   _render: (ctx, indices, {sleft, sright, stop, sbottom}) ->
     
-    name = @renderer.model.attributes.name
     @data =  
-      name: name
+      name: @renderer.model.name
       model_id: @model.id
       model_type: "vbar"
       renderer_id: @renderer.model.id
@@ -83,7 +82,7 @@ export class VBarView extends GlyphView
     
     console.log("render vbar")
     console.log(@)
-    window.localStorage.setItem(name, JSON.stringify(@data))
+    window.localStorage.setItem(@data.name, JSON.stringify(@data))
 
   _hit_point: (geometry) ->
     [vx, vy] = [geometry.vx, geometry.vy]
