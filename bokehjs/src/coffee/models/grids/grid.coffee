@@ -12,6 +12,7 @@ export class GridView extends RendererView
       name: @model.name
       model_id: @model.id
       model_type: "grid_view"
+      data_fields: ["gridlines"]
       gridlines: null
 
   render: () ->

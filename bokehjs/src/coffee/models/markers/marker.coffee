@@ -24,6 +24,7 @@ export class MarkerView extends XYGlyphView
     @data =
       name: @model.name
       model_id: @model.id
+      data_fields: ["markers"]
       markers: []
 
     for i in indices

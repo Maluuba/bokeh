@@ -17,6 +17,7 @@ export class AxisView extends RendererView
       name: @model.attributes.name
       model_id: @model.id
       model_type: "axis"
+      data_fields: ["rule", "major_ticks", "minor_ticks", "major_labels", "label"]
       rule: null
       minor_ticks: []
       major_ticks: []
@@ -83,7 +84,7 @@ export class AxisView extends RendererView
       ctx.lineTo(Math.round(sx[i]+nx*xoff), Math.round(sy[i]+ny*yoff))
     ctx.stroke()
 
-    @data.rule = { bbox: bbox }
+    @data.rule = [{ bbox: bbox }]
 
   _draw_major_ticks: (ctx) ->
     if not @visuals.major_tick_line.doit
@@ -227,7 +228,7 @@ export class AxisView extends RendererView
       ctx.fillText(label, x, y)
       bbox = getLabelBbox(label, ctx, x, y)
 
-    @data.label = { text: label, bbox: bbox }
+    @data.label = [{ text: label, bbox: bbox }]
 
   _tick_extent: () ->
     return @model.major_tick_out

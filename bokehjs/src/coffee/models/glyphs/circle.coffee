@@ -51,6 +51,7 @@ export class CircleView extends XYGlyphView
     @data =
       name: @model.name
       model_id: @model.id
+      data_fields: ["points"]
       points: []
 
     for i in indices

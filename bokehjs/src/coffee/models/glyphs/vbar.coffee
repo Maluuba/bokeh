@@ -55,7 +55,7 @@ export class VBarView extends GlyphView
       model_id: @model.id
       model_type: "vbar"
       renderer_id: @renderer.model.id
-      width: @model.attributes.width.value
+      data_fields: ["bars"]
       bars: []
 
     for i in indices
@@ -73,7 +73,7 @@ export class VBarView extends GlyphView
 
         x_val = @renderer.model.data_source.attributes.data.x[i]
         y_val = @renderer.model.data_source.attributes.data.top[i]
-        @data.bars.push({ bbox: bbox, x: x_val, y: y_val })
+        @data.bars.push({ bbox: bbox, x: x_val, y: y_val, width: @model.attributes.width.value })
 
       if @visuals.line.doit
         ctx.beginPath()

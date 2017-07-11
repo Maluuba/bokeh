@@ -77,6 +77,7 @@ export class LabelSetView extends TextAnnotationView
     @data =
       name: @model.name
       model_id: @model.id
+      data_fields: ["labels"]
       labels: []
 
     [sx, sy] = @_map_data()

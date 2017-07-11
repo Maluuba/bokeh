@@ -17,6 +17,7 @@ export class WedgeView extends XYGlyphView
     @data =
       name: @renderer.model.name
       model_id: @model.id
+      data_fields: ["slices"]
       slices: []
 
     # assumes 'direction' is always CCW 

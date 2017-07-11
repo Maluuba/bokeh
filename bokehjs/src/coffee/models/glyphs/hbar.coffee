@@ -56,7 +56,7 @@ export class HBarView extends GlyphView
       model_id: @model.id
       model_type: "hbar"
       renderer_id: @renderer.model.id
-      height: @model.attributes.height.value
+      data_fields: ["bars"]
       bars: []
 
     for i in indices
@@ -74,7 +74,7 @@ export class HBarView extends GlyphView
 
         x_val = @renderer.model.data_source.attributes.data.right[i]
         y_val = @renderer.model.data_source.attributes.data.y[i]
-        @data.bars.push({ bbox: bbox, x: x_val, y: y_val })
+        @data.bars.push({ bbox: bbox, x: x_val, y: y_val, height: @model.attributes.height.value })
 
       if @visuals.line.doit
         ctx.beginPath()

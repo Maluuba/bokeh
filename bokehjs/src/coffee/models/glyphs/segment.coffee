@@ -22,7 +22,8 @@ export class SegmentView extends GlyphView
   _render: (ctx, indices, {sx0, sy0, sx1, sy1}) ->
     @data =
       name: @model.name
-      model_id: @model.id 
+      model_id: @model.id
+      data_fields: ["segments"]
       segments: []
 
     if @visuals.line.doit

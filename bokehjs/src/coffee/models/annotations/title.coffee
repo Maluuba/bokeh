@@ -22,7 +22,8 @@ export class TitleView extends TextAnnotationView
       name: @model.attributes.name
       model_id: @model.id
       model_type: "text_annotation"
-      text: @model.text
+      data_fields: ["title"]
+      title: [{ text: @model.text, bbox: null }]
 
   _get_computed_location: () ->
     [width, height] = @_calculate_text_dimensions(@plot_view.canvas_view.ctx, @text)
@@ -72,7 +73,7 @@ export class TitleView extends TextAnnotationView
     else
       @_css_text(ctx, @model.text, sx, sy, angle)
     
-    @data.bbox = getLabelBbox(@model.text, ctx, sx, sy, angle)
+    @data.title[0].bbox = getLabelBbox(@model.text, ctx, sx, sy, angle)
     window.localStorage.setItem(@data.name, JSON.stringify(@data))
     console.log("render title", @)
 

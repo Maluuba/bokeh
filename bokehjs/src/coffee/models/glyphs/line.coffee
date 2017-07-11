@@ -14,7 +14,8 @@ export class LineView extends XYGlyphView
 
     @data =
       name: name
-      model_id: @model.id 
+      model_id: @model.id
+      data_fields: ["segments"]
       segments: []
 
     lastPoint = null
