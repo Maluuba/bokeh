@@ -15,12 +15,12 @@ if __name__ == "__main__":
     ys = [6, 7, 2, 4, 5]
     line_data = ColumnDataSource(dict(x=xs, y=ys))
     line1 = p.add_glyph(line_data, Line(x="x", y="y", line_width=2, line_color="#F46D43", name="the_line1"))
-
+    line1.name = "the_line1"
     xs = [1, 2, 3, 4, 5]
     ys = [1, 2, 3, 4, 5]
     line_data = ColumnDataSource(dict(x=xs, y=ys))
     line2 = p.add_glyph(line_data, Line(x="x", y="y", line_width=2, line_color="#000000", name="the_line2"))
-
+    line2.name = "the_line2"
     legend = Legend(items=[
         ("thing1"   , [line1]),
         ("thing2"   , [line2])
