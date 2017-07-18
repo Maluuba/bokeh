@@ -35,7 +35,7 @@ if __name__ == "__main__":
         ("thing3"   , [wedge3]),
         ("thing4"   , [wedge4]),
         ("thing5"   , [wedge5])
-    ], location=(0, -30))
+    ], location=(0, -30), name="the_legend")
     
     p.add_layout(legend, 'right')
     labels = LabelSet(x='x', y='y', text='colors', level='glyph', source=pie_label_data, render_mode='canvas', text_color='black', name="the_pie_labels")
