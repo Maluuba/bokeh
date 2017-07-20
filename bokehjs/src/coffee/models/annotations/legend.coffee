@@ -206,7 +206,7 @@ export class LegendView extends AnnotationView
         when "mute" then all(item.renderers, (r) -> not r.muted)
 
       legend_item =
-        model_name: item.attributes.renderers[0].name
+        model: item.attributes.renderers[0].name
 
       i = 0
       for label in labels
