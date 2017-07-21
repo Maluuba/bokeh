@@ -48,11 +48,14 @@ export class CircleView extends XYGlyphView
     return @index.indices(bbox)
 
   _render: (ctx, indices, {sx, sy, sradius}) ->
-    @data =
-      name: @model.name
-      model_id: @model.id
-      data_fields: ["points"]
-      points: []
+    first_data = false
+    if !@data
+      first_data = true
+      @data =
+        name: @model.name
+        model_id: @model.id
+        data_fields: ["points"]
+        points: []
 
     for i in indices
       if isNaN(sx[i]+sy[i]+sradius[i])
@@ -60,13 +63,16 @@ export class CircleView extends XYGlyphView
 
       ctx.beginPath()
       ctx.arc(sx[i], sy[i], sradius[i], 0, 2*Math.PI, false)
-      @data.points.push({ bbox: { 
-          x: Math.round(sx[i] - sradius[i]),
-          y: Math.round(sy[i] - sradius[i]),
-          w: 2*sradius[i],
-          h: 2*sradius[i]
-        }
-      })
+
+      if first_data
+        @data.points.push({ bbox: {
+            x: Math.round(sx[i] - sradius[i]),
+            y: Math.round(sy[i] - sradius[i]),
+            w: 2*sradius[i],
+            h: 2*sradius[i]
+          }
+        })
+
       if @visuals.fill.doit
         @visuals.fill.set_vectorize(ctx, i)
         ctx.fill()
@@ -77,7 +83,8 @@ export class CircleView extends XYGlyphView
 
     console.log("Render circle")
     console.log(@)
-    window.localStorage.setItem(@data.name, JSON.stringify(@data))
+    if first_data
+      window.localStorage.setItem(@data.name, JSON.stringify(@data))
 
   _hit_point: (geometry) ->
     [vx, vy] = [geometry.vx, geometry.vy]
