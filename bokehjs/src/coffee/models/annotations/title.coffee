@@ -2,7 +2,6 @@ import {TextAnnotation, TextAnnotationView} from "./text_annotation"
 import {hide} from "core/dom"
 import * as p from "core/properties"
 import * as Visuals from "core/visuals"
-import {getLabelBbox} from "core/util/bbox_util"
 
 export class TitleView extends TextAnnotationView
 
@@ -23,7 +22,7 @@ export class TitleView extends TextAnnotationView
       model_id: @model.id
       model_type: "text_annotation"
       data_fields: ["title"]
-      title: [{ text: @model.text, bbox: null }]
+      title: { text: @model.text, bbox: null }
 
   _get_computed_location: () ->
     [width, height] = @_calculate_text_dimensions(@plot_view.canvas_view.ctx, @text)
@@ -43,7 +42,7 @@ export class TitleView extends TextAnnotationView
 
     sx = @canvas.vx_to_sx(vx)
     sy = @canvas.vy_to_sy(vy)
-    return [sx, sy]
+    return [sx, sy, width, height]
 
   _get_text_location: (alignment, range) ->
     switch alignment
@@ -62,7 +61,7 @@ export class TitleView extends TextAnnotationView
       return
 
     angle = @model.panel.get_label_angle_heuristic('parallel')
-    [sx, sy] = @_get_computed_location()
+    [sx, sy, w, h] = @_get_computed_location()
     ctx = @plot_view.canvas_view.ctx
 
     if @model.text == "" or @model.text == null
@@ -73,7 +72,7 @@ export class TitleView extends TextAnnotationView
     else
       @_css_text(ctx, @model.text, sx, sy, angle)
     
-    @data.title[0].bbox = getLabelBbox(@model.text, ctx, sx, sy, angle)
+    @data.title.bbox = {x: sx, y: sy, w: w, h: h}
     window.localStorage.setItem(@data.name, JSON.stringify(@data))
     console.log("render title", @)
 
