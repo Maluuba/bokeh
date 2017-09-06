@@ -207,7 +207,7 @@ export class AxisView extends RendererView
       else # nx = -1, y axis
         labelX = Math.round(labelX - w)
         labelY = Math.round(labelY - (h/2))
-        
+
       bbox = {x: labelX, y: labelY, w: w, h: h}
       @data.major_labels.push({ text: labels[i], bbox: bbox})
 
@@ -231,10 +231,10 @@ export class AxisView extends RendererView
     x = sx+nx*standoff+nx*xoff
     y = sy+ny*standoff+ny*yoff
 
+    [w, h] = @_calculate_text_dimensions(ctx, label, @visuals.axis_label_text.font_value())
+
     if isNaN(x) or isNaN(y)
       return
-
-    bbox = null
 
     if angle && angle != 0
       ctx.translate(x, y)
@@ -242,10 +242,21 @@ export class AxisView extends RendererView
       ctx.fillText(label, 0, 0)
       ctx.rotate(-angle)
       ctx.translate(-x, -y)
-      bbox = getLabelBbox(label, ctx, x, y, angle)
+      # Assume 90 degree rotation
+      temp = w
+      w = h
+      h = temp
     else
       ctx.fillText(label, x, y)
-      bbox = getLabelBbox(label, ctx, x, y)
+
+    x = Math.round(x - (w/2)) # Always needs to be done
+
+    # Use normals as a heuristic to determine which axis
+    if nx == -1 # y axis
+      y = Math.round(y - (h/2))
+      x = Math.round(x - (w/4))
+
+    bbox = {x: x, y: y, w: w, h:h}
 
     @data.label = [{ text: label, bbox: bbox }]
 
