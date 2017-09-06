@@ -240,7 +240,7 @@ export class LegendView extends AnnotationView
           legend_item.label = {
             text: label,
             bbox: {
-              x: Math.round(x2),
+              x: Math.round(x2 + @model.label_standoff), # Need to add the distance between the text and the preview
               y: Math.round(y1),
               w: Math.round(@text_widths[label]),
               h: Math.round(@max_label_height)
