@@ -23,6 +23,7 @@ if __name__ == "__main__":
     p.yaxis.name = "the_yaxis"
     p.yaxis.axis_label = "yaxis_label"
     p.title.name = "the_title"
+    p.xaxis.major_label_orientation = "vertical"
     if p.grid[0].dimension == 0:
         p.grid[0].name = "the_x_gridlines"
         p.grid[1].name = "the_y_gridlines"

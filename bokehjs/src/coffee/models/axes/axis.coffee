@@ -5,7 +5,7 @@ import {RendererView} from "../renderers/renderer"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import {isString, isArray} from "core/util/types"
-import {getLabelBbox} from "core/util/bbox_util"
+import {get_text_height} from "core/util/text"
 import * as _ from "lodash"
 
 export class AxisView extends RendererView
@@ -42,6 +42,11 @@ export class AxisView extends RendererView
   connect_signals: () ->
     super()
     @connect(@model.change, () => @plot_view.request_render())
+
+  _calculate_text_dimensions: (ctx, text, font_size) ->
+    width = ctx.measureText(text).width
+    height = get_text_height(font_size).height
+    return [width, height]
 
   _get_size: () ->
     return @_tick_extent() + @_tick_label_extent() + @_axis_label_extent()
@@ -186,10 +191,24 @@ export class AxisView extends RendererView
         ctx.fillText(labels[i], 0, 0)
         ctx.rotate(-angle)
         ctx.translate(-sx[i]-nx*standoff+nx*xoff, -sy[i]-ny*standoff+ny*yoff)
-        bbox = getLabelBbox(labels[i], ctx, labelX, labelY, angle)
       else
         ctx.fillText(labels[i], labelX, labelY)
-        bbox = getLabelBbox(labels[i], ctx, sx[i]+nx*standoff+nx*xoff, sy[i]+ny*standoff+ny*yoff)
+
+      [w, h] = @_calculate_text_dimensions(ctx, labels[i], @visuals.major_label_text.font_value())
+
+      if orient == "vertical"
+        temp = w
+        w = h
+        h = temp
+
+      # Use normals as a heuristic to determine which axis
+      if ny == 1 # x axis
+        labelX = Math.round(labelX - (w/2))
+      else # nx = -1, y axis
+        labelX = Math.round(labelX - w)
+        labelY = Math.round(labelY - (h/2))
+        
+      bbox = {x: labelX, y: labelY, w: w, h: h}
       @data.major_labels.push({ text: labels[i], bbox: bbox})
 
   _draw_axis_label: (ctx) ->
