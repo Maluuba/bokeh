@@ -2,14 +2,13 @@
 import json
 
 from bokeh.io import export_png_and_data    # Custom function
-from bokeh.plotting import figure, save, show, output_file
-from bokeh.models import ColumnDataSource
+from bokeh.models import ColumnDataSource, Legend
 from bokeh.models.markers import Asterisk, Circle, Cross, Diamond, Square, Triangle, X
+from bokeh.plotting import figure
+
+LEGEND_INSIDE = False
 
 if __name__ == "__main__":
-
-    # output to static HTML file
-    output_file("scatter.html")
 
     p = figure(plot_width=400, plot_height=400, title="title_title", toolbar_location=None)
     x = [1,2,3,4,5]
@@ -24,7 +23,6 @@ if __name__ == "__main__":
 
     scatter_data = ColumnDataSource(dict(x=x, circles=circles, crosses=crosses, triangles=triangles, exes=exes, asterisks=asterisks, diamonds=diamonds, squares=squares, sizes=sizes))
 
-    #circle_glyphs = Triangle(x="x", y="y", size="sizes", line_color="#de2d26", line_width=2, fill_color=None)
     glyphs = []
     glyphs.append(Circle(x="x", y="circles", size="sizes", fill_color="red", name="the_circles"))
     glyphs.append(Cross(x="x", y="crosses", size="sizes", fill_color="blue", name="the_crosses"))
@@ -33,8 +31,34 @@ if __name__ == "__main__":
     glyphs.append(Asterisk(x="x", y="asterisks", size="sizes", fill_color="orange", name="the_asterisks"))
     glyphs.append(Diamond(x="x", y="diamonds", size="sizes", fill_color="yellow", name="the_diamonds"))
     glyphs.append(Square(x="x", y="squares", size="sizes", fill_color="gray", name="the_squares"))
+
+    legend_items = []
     for glyph in glyphs:
-        p.add_glyph(scatter_data, glyph)
+        renderer = p.add_glyph(scatter_data, glyph)
+        renderer.name = glyph.name
+        legend_items.append((renderer.name, [renderer]))
+    
+    legend = Legend(
+        items=legend_items,
+        name="the_legend",
+        label_text_font_size='5pt',
+        glyph_width=20,
+        glyph_height=10,
+        location="center_right",
+        padding=5,
+        margin=0,
+        background_fill_color=None,
+        border_line_color=None,
+        background_fill_alpha=0
+    )
+
+    # Control where the legend appears
+    # Inside
+    if LEGEND_INSIDE:
+        p.add_layout(legend)
+    # Outside
+    else:
+        p.add_layout(legend, 'right')
 
     p.xaxis.name = "the_xaxis"
     p.xaxis.axis_label = "xaxis_label"
@@ -49,8 +73,7 @@ if __name__ == "__main__":
         p.grid[1].name = "the_x_gridlines"
 
     # Export to HTML, PNG, and get bbox data
-    data = export_png_and_data(p, "scatter.png", "scatter.html")
-    #print data
+    data = export_png_and_data(p, "scatter_plot_legend.png", "scatter_plot_legend.html")
 
-    with open("scatter_data.json", "w") as f:
+    with open("scatter_plot_legend.json", "w") as f:
         json.dump(data, f)

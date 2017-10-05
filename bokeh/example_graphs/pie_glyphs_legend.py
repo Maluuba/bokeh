@@ -3,8 +3,8 @@ import json
 import numpy as np
 
 from bokeh.io import export_png_and_data    # Custom function
-from bokeh.plotting import figure, output_file, save
 from bokeh.models import ColumnDataSource, LabelSet, Legend
+from bokeh.plotting import figure
 
 if __name__ == "__main__":
 
@@ -29,15 +29,20 @@ if __name__ == "__main__":
     wedge3 = p.wedge(x=0, y=0, radius=1, start_angle=starts[2], end_angle=ends[2], color=colors[2], name="the_pie3")
     wedge4 = p.wedge(x=0, y=0, radius=1, start_angle=starts[3], end_angle=ends[3], color=colors[3], name="the_pie4")
     wedge5 = p.wedge(x=0, y=0, radius=1, start_angle=starts[4], end_angle=ends[4], color=colors[4], name="the_pie5")
-    legend = Legend(items=[
-        ("thing1"   , [wedge1]),
-        ("thing2"   , [wedge2]),
-        ("thing3"   , [wedge3]),
-        ("thing4"   , [wedge4]),
-        ("thing5"   , [wedge5])
-    ], location=(0, -30), name="the_legend")
+    legend = Legend(
+        items=[
+            (colors[0], [wedge1]),
+            (colors[1], [wedge2]),
+            (colors[2], [wedge3]),
+            (colors[3], [wedge4]),
+            (colors[4], [wedge5])
+        ],
+        location="bottom_right",
+        name="the_legend"
+    )
     
     p.add_layout(legend, 'right')
+
     labels = LabelSet(x='x', y='y', text='colors', level='glyph', source=pie_label_data, render_mode='canvas', text_color='black', name="the_pie_labels")
     p.add_layout(labels)
 
@@ -48,8 +53,7 @@ if __name__ == "__main__":
     p.outline_line_color = None
 
     # Export to HTML, PNG, and get bbox data
-    data = export_png_and_data(p, "legend_pie.png", "legend_pie.html")
-    #print data
+    data = export_png_and_data(p, "pie_glyphs_legend.png", "pie_glyphs_legend.html")
 
-    with open("pie.json", "w") as f:
+    with open("pie_glyphs_legend.json", "w") as f:
         json.dump(data, f)

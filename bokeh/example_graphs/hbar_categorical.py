@@ -1,15 +1,12 @@
 #!/usr/bin/python
-
 import io
 import json
 import os
 
 from bokeh.io import export_png_and_data    # Custom function
-from bokeh.plotting import figure, save, show, output_file, curdoc
+from bokeh.plotting import figure
 
 if __name__ == "__main__":
-
-    output_file('hbar_cat.html')
 
     # Set up the plot
     categories = ['cat_a','cat_b','cat_c']
@@ -31,8 +28,7 @@ if __name__ == "__main__":
         p.grid[1].name = "the_x_gridlines"
 
     # Export to HTML, PNG, and get bbox data
-    data = export_png_and_data(p, "hbar_cat.png", "hbar_cat.html")
-    print data
+    data = export_png_and_data(p, "hbar_categorical.png", "hbar_categorical.html")
 
-    with open("hbar_cat_data.json", "w") as f:
+    with open("hbar_categorical.json", "w") as f:
         json.dump(data, f)
