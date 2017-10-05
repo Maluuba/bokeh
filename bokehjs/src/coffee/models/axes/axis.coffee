@@ -118,13 +118,15 @@ export class AxisView extends RendererView
       tickY = Math.round(sy[i]+ny*tout+ny*yoff)
       tickW = Math.abs(Math.round(sx[i]-nx*tin+nx*xoff) - tickX)
       tickH = Math.abs(Math.round(sy[i]-ny*tin+ny*yoff) - tickY)
+      tickYOffset = 0
       if tickW != 0
         tickY -= tickW / 2
         tickH = tickW
       else
         tickX -= tickH / 2
         tickW = tickH
-      @data.major_ticks.push({ value: values[i], bbox: { x: tickX, y: tickY, w: tickW, h: tickH }})
+        tickYOffset = tickH
+      @data.major_ticks.push({ value: values[i], bbox: { x: tickX, y: tickY - tickYOffset, w: tickW, h: tickH }})
 
   _draw_minor_ticks: (ctx) ->
     if not @visuals.minor_tick_line.doit
@@ -153,13 +155,15 @@ export class AxisView extends RendererView
       tickY = Math.round(sy[i]+ny*tout+ny*yoff)
       tickW = Math.abs(Math.round(sx[i]-nx*tin+nx*xoff) - tickX)
       tickH = Math.abs(Math.round(sy[i]-ny*tin+ny*yoff) - tickY)
+      tickYOffset = 0
       if tickW != 0
         tickY -= tickW / 2
         tickH = tickW
       else
         tickX -= tickH / 2
         tickW = tickH
-      @data.minor_ticks.push({ value: values[i], bbox: { x: tickX, y: tickY, w: tickW, h: tickH }})
+        tickYOffset = tickH
+      @data.minor_ticks.push({ value: values[i], bbox: { x: tickX, y: tickY - tickYOffset, w: tickW, h: tickH }})
 
   _draw_major_labels: (ctx) ->
     coords = @model.tick_coords

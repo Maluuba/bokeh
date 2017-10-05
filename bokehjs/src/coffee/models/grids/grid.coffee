@@ -73,15 +73,21 @@ export class GridView extends RendererView
         h: null
 
       for j in [1...sx.length]
+
         ctx.lineTo(Math.round(sx[j]), Math.round(sy[j]))
         if j == (sx.length - 1)
           endX = sx[j]
           endY = sy[j]
 
           if endX < bbox.x
+            temp = bbox.x
             bbox.x = endX
-          if endY < bbox.y 
+            endX = temp
+
+          if endY < bbox.y
+            temp = bbox.y
             bbox.y = endY
+            endY = temp
 
           bbox.w = Math.round(endX - bbox.x)
           bbox.h = Math.round(endY - bbox.y)
@@ -91,7 +97,7 @@ export class GridView extends RendererView
           if bbox.w == 0
             bbox.x -= bboxOffset
             bbox.w = 2 * bboxOffset
-          else
+          else if bbox.h == 0
             bbox.y -= bboxOffset
             bbox.h = 2 * bboxOffset
 

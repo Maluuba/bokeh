@@ -160,7 +160,7 @@ export class LegendView extends AnnotationView
 
     @data =
       name: @model.name
-      legend_items: []
+      items: []
       bbox: {
         x: Math.round(bbox.x),
         y: Math.round(bbox.y),
@@ -257,7 +257,7 @@ export class LegendView extends AnnotationView
           }
           
         i += 1
-      @data.legend_items.push(legend_item)
+      @data.items.push(legend_item)
     return null
 
   _get_size: () ->
