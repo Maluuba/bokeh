@@ -93,6 +93,8 @@ REQUIRES = [
     'Jinja2 >=2.7',
     'numpy >=1.7.1',
     'tornado >=4.3',
+    'pillow >=4.3.0',
+    'selenium >=3.6.0',
 
     # this will be removed when Bokeh hits 1.0
     'bkcharts >=0.2',
