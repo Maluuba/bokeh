@@ -1,7 +1,7 @@
 {
   "name": "bokehjs",
-  "version": "0.12.6",
-  "description": "Interactive, novel data visualization",
+  "version": "0.12.6-figureqa-bbox-0.1.0",
+  "description": "Interactive, novel data visualization - with bounding boxes",
   "keywords": [
     "bokeh",
     "datavis",
@@ -14,7 +14,7 @@
   "license": "BSD-3-Clause",
   "repository": {
     "type": "git",
-    "url": "https://github.com/bokeh/bokeh.git"
+    "url": "https://github.com/Maluuba/bokeh.git"
   },
   "devDependencies": {
     "@types/browserify": "^12.0.30",
