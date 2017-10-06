@@ -158,10 +158,23 @@ export class LegendView extends AnnotationView
     ctx = @plot_view.canvas_view.ctx
     bbox = @compute_legend_bbox()
 
+    @data =
+      name: @model.name
+      items: []
+      bbox: {
+        x: Math.round(bbox.x),
+        y: Math.round(bbox.y),
+        w: Math.round(bbox.width),
+        h: Math.round(bbox.height)
+      }
+
     ctx.save()
     @_draw_legend_box(ctx, bbox)
     @_draw_legend_items(ctx, bbox)
     ctx.restore()
+    console.log("render legend")
+    console.log(@)
+    window.localStorage.setItem(@data.name, JSON.stringify(@data))
 
   _draw_legend_box: (ctx, bbox) ->
     ctx.beginPath()
@@ -192,6 +205,10 @@ export class LegendView extends AnnotationView
         when "hide" then all(item.renderers, (r) -> r.visible)
         when "mute" then all(item.renderers, (r) -> not r.muted)
 
+      legend_item =
+        model: item.attributes.renderers[0].name
+
+      i = 0
       for label in labels
         x1 = bbox.x + xoffset
         y1 = bbox.y + yoffset
@@ -218,6 +235,29 @@ export class LegendView extends AnnotationView
           @visuals.inactive_fill.set_value(ctx)
           ctx.fill()
 
+        if i == 0
+        
+          legend_item.label = {
+            text: label,
+            bbox: {
+              x: Math.round(x2 + @model.label_standoff), # Need to add the distance between the text and the preview
+              y: Math.round(y1),
+              w: Math.round(@text_widths[label]),
+              h: Math.round(@max_label_height)
+            }
+          }
+
+          legend_item.preview = {
+            bbox: {
+              x: Math.round(x1),
+              y: Math.round(y1),
+              w: Math.round(glyph_width),
+              h: Math.round(glyph_height)
+            }
+          }
+          
+        i += 1
+      @data.items.push(legend_item)
     return null
 
   _get_size: () ->

@@ -6,6 +6,7 @@
     "noImplicitThis": true,
     "noImplicitReturns": true,
     "strictNullChecks": true,
+    "suppressImplicitAnyIndexErrors": true,
     "alwaysStrict": true,
     "noEmitOnError": false,
     "module": "commonjs",

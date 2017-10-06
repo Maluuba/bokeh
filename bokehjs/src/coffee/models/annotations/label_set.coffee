@@ -74,6 +74,12 @@ export class LabelSetView extends TextAnnotationView
       return
     ctx = @plot_view.canvas_view.ctx
 
+    @data =
+      name: @model.name
+      model_id: @model.id
+      data_fields: ["labels"]
+      labels: []
+
     [sx, sy] = @_map_data()
 
     if @model.render_mode == 'canvas'
@@ -82,6 +88,9 @@ export class LabelSetView extends TextAnnotationView
     else
       for i in [0...@_text.length]
         @_v_css_text(ctx, i, @_text[i], sx[i] + @_x_offset[i], sy[i] - @_y_offset[i], @_angle[i])
+    console.log("render labelset")
+    console.log(@)
+    window.localStorage.setItem(@data.name, JSON.stringify(@data))
 
   _get_size: () ->
     ctx = @plot_view.canvas_view.ctx
@@ -120,6 +129,13 @@ export class LabelSetView extends TextAnnotationView
       ctx.fillText(text, 0, 0)
 
     ctx.restore()
+    bbox = 
+      x: Math.round(bbox_dims[0] + sx),
+      y: Math.round(bbox_dims[1] + sy),
+      w: Math.round(bbox_dims[2]),
+      h: 2 * Math.round(bbox_dims[3]) # Double the height since sometimes is too short
+
+    @data.labels.push({text: text, bbox: bbox})
 
   _v_css_text: (ctx, i, text, sx, sy, angle) ->
     el = @el.childNodes[i]

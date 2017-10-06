@@ -5,17 +5,28 @@ import {RendererView} from "../renderers/renderer"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import {isString, isArray} from "core/util/types"
+import {get_text_height} from "core/util/text"
+import * as _ from "lodash"
 
 export class AxisView extends RendererView
   initialize: (options) ->
     super(options)
     @_x_range_name = @model.x_range_name
     @_y_range_name = @model.y_range_name
+    @data = 
+      name: @model.attributes.name
+      model_id: @model.id
+      model_type: "axis"
+      data_fields: ["rule", "major_ticks", "minor_ticks", "major_labels", "label"]
+      rule: null
+      minor_ticks: []
+      major_ticks: []
+      major_labels: []
+      label: null
 
   render: () ->
     if @model.visible == false
       return
-
     ctx = @plot_view.canvas_view.ctx
     ctx.save()
     @_draw_rule(ctx)
@@ -24,10 +35,18 @@ export class AxisView extends RendererView
     @_draw_major_labels(ctx)
     @_draw_axis_label(ctx)
     ctx.restore()
+    console.log("render axis")
+    console.log(@)
+    window.localStorage.setItem(@data.name, JSON.stringify(@data))
 
   connect_signals: () ->
     super()
     @connect(@model.change, () => @plot_view.request_render())
+
+  _calculate_text_dimensions: (ctx, text, font_size) ->
+    width = ctx.measureText(text).width
+    height = get_text_height(font_size).height
+    return [width, height]
 
   _get_size: () ->
     return @_tick_extent() + @_tick_label_extent() + @_axis_label_extent()
@@ -41,10 +60,36 @@ export class AxisView extends RendererView
     [xoff, yoff]  = @model.offsets
     @visuals.axis_line.set_value(ctx)
     ctx.beginPath()
-    ctx.moveTo(Math.round(sx[0]+nx*xoff), Math.round(sy[0]+ny*yoff))
+    origX = Math.round(sx[0]+nx*xoff)
+    origY = Math.round(sy[0]+ny*yoff)
+    ctx.moveTo(origX, origY)
+    bbox = {}
+    bboxOff = 2
+
     for i in [1...sx.length]
+      ruleX = Math.round(sx[i]+nx*xoff)
+      ruleY = Math.round(sy[i]+ny*yoff)
+
+      if i == 1
+        if ruleX == origX
+          bbox.x = ruleX - bboxOff
+          bbox.w = 2 * bboxOff
+        else
+          bbox.y = ruleY - bboxOff
+          bbox.h = 2 * bboxOff
+
+      if i == (sx.length - 1)
+        if _.isNil(bbox.h)
+          bbox.y = _.min([origY, ruleY])
+          bbox.h = _.max([origY, ruleY]) - bbox.y
+        else
+          bbox.x = _.min([origX, ruleX])
+          bbox.w = _.max([origX, ruleX]) - bbox.x
+      
       ctx.lineTo(Math.round(sx[i]+nx*xoff), Math.round(sy[i]+ny*yoff))
     ctx.stroke()
+
+    @data.rule = [{ bbox: bbox }]
 
   _draw_major_ticks: (ctx) ->
     if not @visuals.major_tick_line.doit
@@ -55,6 +100,12 @@ export class AxisView extends RendererView
     [nx, ny] = @model.normals
     [xoff, yoff]  = @model.offsets
 
+    values = null
+    if _.uniq(x).length <= 1
+      values = y
+    else
+      values = x
+
     tin = @model.major_tick_in
     tout = @model.major_tick_out
     @visuals.major_tick_line.set_value(ctx)
@@ -63,6 +114,19 @@ export class AxisView extends RendererView
       ctx.moveTo(Math.round(sx[i]+nx*tout+nx*xoff), Math.round(sy[i]+ny*tout+ny*yoff))
       ctx.lineTo(Math.round(sx[i]-nx*tin+nx*xoff), Math.round(sy[i]-ny*tin+ny*yoff))
       ctx.stroke()
+      tickX = Math.round(sx[i]+nx*tout+nx*xoff)
+      tickY = Math.round(sy[i]+ny*tout+ny*yoff)
+      tickW = Math.abs(Math.round(sx[i]-nx*tin+nx*xoff) - tickX)
+      tickH = Math.abs(Math.round(sy[i]-ny*tin+ny*yoff) - tickY)
+      tickYOffset = 0
+      if tickW != 0
+        tickY -= tickW / 2
+        tickH = tickW
+      else
+        tickX -= tickH / 2
+        tickW = tickH
+        tickYOffset = tickH
+      @data.major_ticks.push({ value: values[i], bbox: { x: tickX, y: tickY - tickYOffset, w: tickW, h: tickH }})
 
   _draw_minor_ticks: (ctx) ->
     if not @visuals.minor_tick_line.doit
@@ -72,6 +136,13 @@ export class AxisView extends RendererView
     [sx, sy] = @plot_view.map_to_screen(x, y, @_x_range_name, @_y_range_name)
     [nx, ny] = @model.normals
     [xoff, yoff]  = @model.offsets
+
+    values = null
+    if _.uniq(x).length <= 1
+      values = y
+    else
+      values = x
+
     tin = @model.minor_tick_in
     tout = @model.minor_tick_out
     @visuals.minor_tick_line.set_value(ctx)
@@ -80,6 +151,19 @@ export class AxisView extends RendererView
       ctx.moveTo(Math.round(sx[i]+nx*tout+nx*xoff), Math.round(sy[i]+ny*tout+ny*yoff))
       ctx.lineTo(Math.round(sx[i]-nx*tin+nx*xoff), Math.round(sy[i]-ny*tin+ny*yoff))
       ctx.stroke()
+      tickX = Math.round(sx[i]+nx*tout+nx*xoff)
+      tickY = Math.round(sy[i]+ny*tout+ny*yoff)
+      tickW = Math.abs(Math.round(sx[i]-nx*tin+nx*xoff) - tickX)
+      tickH = Math.abs(Math.round(sy[i]-ny*tin+ny*yoff) - tickY)
+      tickYOffset = 0
+      if tickW != 0
+        tickY -= tickW / 2
+        tickH = tickW
+      else
+        tickX -= tickH / 2
+        tickW = tickH
+        tickYOffset = tickH
+      @data.minor_ticks.push({ value: values[i], bbox: { x: tickX, y: tickY - tickYOffset, w: tickW, h: tickH }})
 
   _draw_major_labels: (ctx) ->
     coords = @model.tick_coords
@@ -101,6 +185,10 @@ export class AxisView extends RendererView
     @visuals.major_label_text.set_value(ctx)
     @model.panel.apply_label_text_heuristics(ctx, orient)
     for i in [0...sx.length]
+      bbox = null
+      labelX = Math.round(sx[i]+nx*standoff+nx*xoff)
+      labelY = Math.round(sy[i]+ny*standoff+ny*yoff)
+
       if angle
         ctx.translate(sx[i]+nx*standoff+nx*xoff, sy[i]+ny*standoff+ny*yoff)
         ctx.rotate(angle)
@@ -108,7 +196,24 @@ export class AxisView extends RendererView
         ctx.rotate(-angle)
         ctx.translate(-sx[i]-nx*standoff+nx*xoff, -sy[i]-ny*standoff+ny*yoff)
       else
-        ctx.fillText(labels[i], Math.round(sx[i]+nx*standoff+nx*xoff), Math.round(sy[i]+ny*standoff+ny*yoff))
+        ctx.fillText(labels[i], labelX, labelY)
+
+      [w, h] = @_calculate_text_dimensions(ctx, labels[i], @visuals.major_label_text.font_value())
+
+      if orient == "vertical"
+        temp = w
+        w = h
+        h = temp
+
+      # Use normals as a heuristic to determine which axis
+      if ny == 1 # x axis
+        labelX = Math.round(labelX - (w/2))
+      else # nx = -1, y axis
+        labelX = Math.round(labelX - w)
+        labelY = Math.round(labelY - (h/2))
+
+      bbox = {x: labelX, y: labelY, w: w, h: h}
+      @data.major_labels.push({ text: labels[i], bbox: bbox})
 
   _draw_axis_label: (ctx) ->
     label = @model.axis_label
@@ -120,7 +225,7 @@ export class AxisView extends RendererView
     [xoff, yoff]  = @model.offsets
     side = @model.panel_side
     orient = 'parallel'
-    angle = @model.panel.get_label_angle_heuristic(orient)
+    angle = @model.panel.get_label_angle_heuristic(orient) # THIS IS IN RADIANS
     standoff = (@_tick_extent() + @_tick_label_extent() + @model.axis_label_standoff)
     sx = (sx[0] + sx[sx.length-1])/2
     sy = (sy[0] + sy[sy.length-1])/2
@@ -130,17 +235,34 @@ export class AxisView extends RendererView
     x = sx+nx*standoff+nx*xoff
     y = sy+ny*standoff+ny*yoff
 
+    [w, h] = @_calculate_text_dimensions(ctx, label, @visuals.axis_label_text.font_value())
+
     if isNaN(x) or isNaN(y)
       return
 
-    if angle
+    if angle && angle != 0
       ctx.translate(x, y)
       ctx.rotate(angle)
       ctx.fillText(label, 0, 0)
       ctx.rotate(-angle)
       ctx.translate(-x, -y)
+      # Assume 90 degree rotation
+      temp = w
+      w = h
+      h = temp
     else
       ctx.fillText(label, x, y)
+
+    x = Math.round(x - (w/2)) # Always needs to be done
+
+    # Use normals as a heuristic to determine which axis
+    if nx == -1 # y axis
+      y = Math.round(y - (h/2))
+      x = Math.round(x - (w/4))
+
+    bbox = {x: x, y: y, w: w, h:h}
+
+    @data.label = [{ text: label, bbox: bbox }]
 
   _tick_extent: () ->
     return @model.major_tick_out

@@ -1,6 +1,7 @@
 import * as hittest from "core/hittest"
 import {RBush} from "core/util/spatial"
 import {Glyph, GlyphView} from "./glyph"
+import * as _ from "lodash"
 
 export class SegmentView extends GlyphView
 
@@ -19,6 +20,12 @@ export class SegmentView extends GlyphView
     return new RBush(points)
 
   _render: (ctx, indices, {sx0, sy0, sx1, sy1}) ->
+    @data =
+      name: @model.name
+      model_id: @model.id
+      data_fields: ["segments"]
+      segments: []
+
     if @visuals.line.doit
       for i in indices
         if isNaN(sx0[i]+sy0[i]+sx1[i]+sy1[i])
@@ -28,8 +35,20 @@ export class SegmentView extends GlyphView
         ctx.moveTo(sx0[i], sy0[i])
         ctx.lineTo(sx1[i], sy1[i])
 
+        bbox =
+          x: Math.round(_.min([sx0[i], sx1[i]])),
+          y: Math.round(_.min([sy0[i], sy1[i]])),
+          w: Math.round(Math.abs(sx0[i] - sx1[i])),
+          h: Math.round(Math.abs(sy0[i] - sy1[i]))
+
+        @data.segments.push({bbox: bbox,  start: {x: Math.round(sx0[i]), y: Math.round(sy0[i])}, end: {x: Math.round(sx1[i]), y: Math.round(sy1[i])}})
+
         @visuals.line.set_vectorize(ctx, i)
         ctx.stroke()
+
+    console.log("render segment")
+    console.log(@)
+    window.localStorage.setItem(@data.name, JSON.stringify(@data))
 
   _hit_point: (geometry) ->
     [vx, vy] = [geometry.vx, geometry.vy]

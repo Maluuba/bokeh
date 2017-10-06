@@ -3,6 +3,7 @@ import {pull_session} from "./client"
 import {logger, set_log_level} from "./core/logging"
 import {Document, RootAddedEvent, RootRemovedEvent, TitleChangedEvent} from "./document"
 import {div, link, style, replaceWith} from "./core/dom"
+import * as _ from "lodash"
 
 # Matches Bokeh CSS class selector. Setting all Bokeh parent element class names
 # with this var prevents user configurations where css styling is unset.
@@ -162,6 +163,9 @@ fill_render_item_from_script_tag = (script, item) ->
 # absolute_url as well if non-relative links are needed for resources. This function
 # should probably be split in to two pieces to reflect the different usage patterns
 export embed_items = (docs_json, render_items, app_path, absolute_url) ->
+
+  AUGMENTED_DATA = _.cloneDeep(docs_json)
+  window.localStorage.clear()
   protocol = 'ws:'
   if (window.location.protocol == 'https:')
     protocol = 'wss:'

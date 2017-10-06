@@ -21,6 +21,15 @@ export class MarkerView extends XYGlyphView
     @_render(ctx, indices, data)
 
   _render: (ctx, indices, {sx, sy, _size, _angle}) ->
+    first_data = false
+    if !@data
+      first_data = true
+      @data =
+        name: @model.name
+        model_id: @model.id
+        data_fields: ["markers"]
+        markers: []
+
     for i in indices
       if isNaN(sx[i]+sy[i]+_size[i]+_angle[i])
         continue
@@ -33,12 +42,23 @@ export class MarkerView extends XYGlyphView
       if _angle[i]
         ctx.rotate(_angle[i])
 
-      @_render_one(ctx, i, sx[i], sy[i], r, @visuals.line, @visuals.fill)
+      if first_data
+        bbox = @_render_one(ctx, i, sx[i], sy[i], r, @visuals.line, @visuals.fill)
+        bbox.x = Math.round(bbox.x + sx[i])
+        bbox.y = Math.round(bbox.y + sy[i])
+        bbox.w = Math.round(bbox.w)
+        bbox.h = Math.round(bbox.h)
+        @data.markers.push({bbox: bbox})
 
       if _angle[i]
         ctx.rotate(-_angle[i])
 
       ctx.translate(-sx[i], -sy[i])
+
+    console.log("render marker")
+    console.log(@)
+    if first_data
+      window.localStorage.setItem(@data.name, JSON.stringify(@data))
 
   _mask_data: (all_indices) ->
     # dilate the inner screen region by max_size and map back to data space for use in

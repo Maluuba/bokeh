@@ -51,6 +51,15 @@ export class HBarView extends GlyphView
     return new RBush(points)
 
   _render: (ctx, indices, {sleft, sright, stop, sbottom}) ->
+  
+    @data =
+      name: @renderer.model.name
+      model_id: @model.id
+      model_type: "hbar"
+      renderer_id: @renderer.model.id
+      data_fields: ["bars"]
+      bars: []
+
     for i in indices
       if isNaN(sleft[i] + stop[i] + sright[i] + sbottom[i])
         continue
@@ -58,12 +67,25 @@ export class HBarView extends GlyphView
       if @visuals.fill.doit
         @visuals.fill.set_vectorize(ctx, i)
         ctx.fillRect(sleft[i], stop[i], sright[i]-sleft[i], sbottom[i]-stop[i])
+        bbox =
+          x: Math.round(sleft[i]),
+          y: Math.round(stop[i]),
+          w: Math.round(sright[i]-sleft[i]),
+          h: Math.round(sbottom[i]-stop[i])
+
+        x_val = @renderer.model.data_source.attributes.data.right[i]
+        y_val = @renderer.model.data_source.attributes.data.y[i]
+        @data.bars.push({ bbox: bbox, x: x_val, y: y_val, height: @model.attributes.height.value })
 
       if @visuals.line.doit
         ctx.beginPath()
         ctx.rect(sleft[i], stop[i], sright[i]-sleft[i], sbottom[i]-stop[i])
         @visuals.line.set_vectorize(ctx, i)
         ctx.stroke()
+    
+    console.log("render hbar")
+    console.log(@)
+    window.localStorage.setItem(@data.name, JSON.stringify(@data))
 
   _hit_point: (geometry) ->
     [vx, vy] = [geometry.vx, geometry.vy]
