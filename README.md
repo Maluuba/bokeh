@@ -1,73 +1,85 @@
-# Bokeh
+# Bokeh: Maluuba FigureQA Fork
 
 ## Introduction
 
-This fork of Bokeh gets the coordinates of drawn primitives for bounding boxes.
+This fork of Bokeh gets the bounding boxes of drawn primitives. 
 
-Bokeh has no dependency on matplotlib (thank goodness).
+It is based on Bokeh version **0.12.6**.
+
+Bokeh is very easy to use and extend, and has **no dependency on matplotlib**.
 
 At a high-level, here's how the library works:
 
-- The figure is defined in Python. Source code lives in the Bokeh Python library: bokeh/bokeh
---- Make sure you add `name` attributes to the different parts of your figure
---- Use the `export_png_and_data` function from bokeh.io to get the PNG and a Python dict of the bounding box data
+- The figure is defined in Python. Source code lives in the Bokeh Python library (**bokeh/bokeh**).
+  - Make sure you add `name` attributes to the different parts of your figure.
+  - Use the `export_png_and_data` function from bokeh.io to get the PNG and a Python dict of the bounding box data.
+  - See the examples in `bokeh/bokeh/example_graphs`.
 
-- The Bokeh Python library calls the Bokeh JavaScript library (bokeh/bokehjs) which renders to a canvas and exports this to a PNG
---- Python lib generates an HTML file with JSON defining the figure
---- JS lib takes the HTML file and renders it in a headless browser (PhantomJS)
---- JS lib renders the figure (model-view coffeescript, like Backbone.js) and intercepts draws to the canvas
---- JS lib takes canvas draws, figures out bounding boxes, associates with names defined in Python lib, and saves to localStorage in PhantomJS
---- Python lib grabs the data from the PhantomJS webdriver's localStorage
+- The Bokeh Python library calls the Bokeh JavaScript library (**bokeh/bokehjs**) which renders the plot to a canvas using a headless browser, then exports this to a PNG.
+  - The Python lib generates an HTML file with JSON defining the figure.
+  - The JS lib takes the HTML file and renders it in a headless browser (PhantomJS).
+  - The JS lib renders the figure (model-view coffeescript, like Backbone.js) and performs the drawing to canvas.
+  - While drawing, the JS lib calculates bounding boxes, associates them with names defined in the Python figure, and saves these annotations to localStorage in PhantomJS.
+  - The Python lib then grabs the data from the PhantomJS webdriver's localStorage.
 
-## Prerequisites
+## Prerequisites and Installation
 
-- Install the following Python packages: NumPy, Jinja2, Six, Requests, Tornado >= 4.0, PyYaml, DateUtil, Selenium, PhantomJS, Pillow
-- Install NodeJS
-- Upgrade npm with `npm update -g npm`
-- Install PhantomJS globally with `npm install -g phantomjs-prebuilt`
-- Make sure the PhantomJS executable is on your PATH. I found mine at: `C:\Users\adatkins\AppData\Roaming\npm\node_modules\phantomjs-prebuilt\lib\phantom\bin`
-- cd to bokeh/bokehjs and do `npm install`
+Note: there's no need to install the requirements from `requirements.txt` if you run `setup.py`.
+
+1. If on Linux, install these packages:
+    - `libfontconfig` (e.g. `sudo apt-get install libfontconfig`).
+    - `zlib` (e.g. `sudo apt-get install zlib1g-dev`)
+    - `libjpeg` (e.g. `sudo apt-get install libjpeg-dev`)
+1. Install NodeJS LTS from [here](https://nodejs.org/en/download/). These instructions are based on Node version **6.11.4**.
+1. `npm install -g phantomjs-prebuilt` to install PhantomJS globally. This may have to be done in `sudo` or `Administrator` mode.
+    - Note if you are using npm >= 5.x add `--unsafe-perm` to the command (see [here](https://github.com/Medium/phantomjs/issues/707)).
+    - If you have trouble on Windows, try `npm cache clean --force`. A full list of troubleshooting tips can be found [here](https://github.com/Medium/phantomjs#troubleshooting).
+1. Make sure the PhantomJS executable is on your PATH. On Windows, I found mine in `C:\Users\<user>\AppData\Roaming\npm\node_modules\phantomjs-prebuilt\lib\phantom\bin`.
+1. Clone this repo or unzip the source from the release page.
+1. `cd bokeh/bokehjs`.
+1. `npm install`.
+1. `cd ../bokeh`.
+1. `python setup.py install --build-js`
 
 ## Development
 
-### Installation
+See the Bokeh developer guide [here](https://bokeh.pydata.org/en/0.12.6/docs/dev_guide.html).
 
-#### Python + JS
+### Python + JS
 
-- cd to the root directory, bokeh
-- run `python setup.py develop --build-js` to build the JS bundle and include it in the Python library
-- This needs to be done everytime you want to use new JS changes with the Python Bokeh library!
+To use changes to both the Bokeh Python and JS libs, you need to run either
+- `python setup.py develop --build-js` (to build the JS bundle fresh and include it in the Python library)
+or
+- `python setup.py develop --install-js` (to use the last built JS bundle)
 
-#### JS Only
+**every time** you want to use new Bokeh JS changes with the Bokeh Python library.
 
-- cd to bokeh/bokehjs
-- if you want to recompile on new changes, run `gulp watch`
-- if you want to build an un-minified bundle, run `gulp dev-build`
+I.e. if you've made changes to the JS files and want to test them with the Python lib, you need to run `python setup.py develop --build-js` again to package the latest JS lib into the Python lib.
 
-#### Python Only
+### Python Only
 
-- Can do Python + JS step above, or add symlink in site-packages to the current project with `python setup.py develop`. This uses the last added JS lib in the Python + JS step.
+If you've made changes to the Python files only, and run `python setup.py develop --build-js/--install-js` once, you don't need to do anything more.
 
-### Workflows
+Your Bokeh Python changes will be picked up immediately.
 
-#### JS
+### JS Only
 
-I run `gulp watch` on my files to rebuild the library in dev mode everytime bokeh/bokehjs/src files are modified.
+1. `cd bokeh/bokehjs`
+1. `gulp watch` if you want to recompile on new changes, or `gulp dev-build` to build an un-minified bundle.
 
-I keep a modified HTML file generated by the Python lib in the bokeh/bokehjs directory, with a reference to the generated bundle in the build directory. This will pick up the latest changes generated in the step above.
+#### Workflow
 
-I include this in a script tag like so `<script type="text/javascript" src="build/js/bokeh.js"></script>`.
-This allows me to analyze console errors and debug faster.
+You can run `gulp watch` to rebuild the library in dev mode everytime bokeh/bokehjs/src files are modified. 
 
-#### Python + JS
+To use this bundle right away, you can use a modified HTML file generated by the Python lib. This can be done with a reference to the generated bundle in the build directory using a script tag like `<script type="text/javascript" src="build/js/bokeh.js"></script>`. This will pick up the latest bundle genenerated by gulp.
 
-If you've made changes to the Python files only, and run `python setup.py develop --build-js` once, you don't need to do anything. Your changes will be picked up immediately.
+This lets you analyze console errors and debug faster than rebuilding the whole Bokeh library every time.
 
-If you've made changes to the JS files and want to test them with the Python lib, you need to run `python setup.py develop --build-js` again to package the latest JS lib into the Python lib.
+See the samples in the `bokeh/bokeh/example_graphs` directory to see how you can generate one of these files.
 
 ## Usage and Examples
 
-See `bokeh/bokeh/example_graphs/bar_graph_vertical.py`
+Some examples are provided in `bokeh/bokeh/example_graphs`.
 
 # Stuff from original Bokeh README
 
