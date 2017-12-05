@@ -38,7 +38,7 @@ Note: there's no need to install the requirements from `requirements.txt` if you
 1. Clone this repo or unzip the source from the release page.
 1. `cd bokeh/bokehjs`.
 1. `npm install`.
-1. `cd ../bokeh`.
+1. `cd ..`.
 1. `python setup.py install --build-js`
 
 ## Development
