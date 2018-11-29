@@ -1,6 +1,6 @@
 {
   "name": "bokehjs",
-  "version": "0.12.6-figureqa-bbox-0.1.2",
+  "version": "0.12.6-figureqa-bbox-0.1.1",
   "description": "Interactive, novel data visualization - with bounding boxes",
   "keywords": [
     "bokeh",
@@ -47,8 +47,8 @@
     "coffeeify": "^0.7.0",
     "del": "^1.1.1",
     "detective": "^4.3.1",
-    "event-stream": "^4.0.1",
-    "gulp": "^3.9.1",
+    "event-stream": "<=3.3.4",
+    "gulp": "^3.9.0",
     "gulp-change": "^1.0.0",
     "gulp-coffee": "^2.3.1",
     "gulp-if": "^2.0.0",
