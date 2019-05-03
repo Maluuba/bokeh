@@ -30,7 +30,7 @@ Note: there's no need to install the requirements from `requirements.txt` if you
     - `libfontconfig` (e.g. `sudo apt-get install libfontconfig`).
     - `zlib` (e.g. `sudo apt-get install zlib1g-dev`)
     - `libjpeg` (e.g. `sudo apt-get install libjpeg-dev`)
-1. Install NodeJS LTS from [here](https://nodejs.org/en/download/). These instructions are based on Node version **6.11.4**.
+1. Install NodeJS LTS from [here](https://nodejs.org/en/download/). These instructions are based on Node version **11.15.0**. Note that this won't build with node > 11 because of a gulp issue.
 1. `npm install -g phantomjs-prebuilt` to install PhantomJS globally. This may have to be done in `sudo` or `Administrator` mode.
     - Note if you are using npm >= 5.x add `--unsafe-perm` to the command (see [here](https://github.com/Medium/phantomjs/issues/707)).
     - If you have trouble on Windows, try `npm cache clean --force`. A full list of troubleshooting tips can be found [here](https://github.com/Medium/phantomjs#troubleshooting).
